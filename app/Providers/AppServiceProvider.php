@@ -13,9 +13,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-       $this->app->bind('path.public',function(){
-	 return'/media/compartida/DiegoINAH/AdminNetworks/public';
-	});
+       //$this->app->bind('path.public',function(){
+	 //return'/media/compartida/DiegoINAH/AdminNetworks/public';
+	//});
     }
 
     /**
