@@ -1,24 +1,26 @@
 <template>
     <div class="text-center">
       <v-dialog
-        v-model="dialog"
+        v-model="dlgCompute"
         width="500"
+        persistent
       >
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            color="red lighten-2"
-            dark
-            v-bind="attrs"
-            v-on="on"
-          >
-            Click Me
-          </v-btn>
-        </template>
+       
   
         <v-card>
           <v-card-title class="text-h5 grey lighten-2">
-            Privacy Policy
+            New Compute Graph
           </v-card-title>
+
+          <v-col
+          cols="12"
+        >
+          <v-text-field
+            v-model="cg.nameGrafo"
+            label="Name"
+            required
+          ></v-text-field>
+        </v-col>
   
           <v-col
             cols="12"
@@ -28,7 +30,7 @@
 
             <v-radio-group
                 v-model="cg.netType"
-                row
+                
                 
                 >
                 <v-radio
@@ -90,7 +92,7 @@
                 v-for="item in distance" :key="item.id"
                     :label="item.name"
                     :value="item.id"
-                ></v-radio>
+                ></v-radio><br>
               
             </v-radio-group>
             </v-col>
@@ -100,10 +102,14 @@
           <v-divider></v-divider>
   
           <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-col cols="12">
+          
+        
                 <v-btn color="success" @click="fnProccess()">Proccess</v-btn>
-            </v-col>
+          
+            <v-spacer></v-spacer>
+           
+                <v-btn color="error" @click="$emit('close')">Cancel</v-btn>
+           
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -116,12 +122,13 @@
 
 export default {
     name: "",
-    props: ["info", "singleTable"],
+    props: ["info", "singleTable", "dlgCompute"],
     components: {
 
     },
     data: () => ({
         tab: null,
+        dialog: true,
         models:[ 
             { name: "Voronoi Diagram", id: "vd" },
             { name:  "Delauney Triangulation", id: "dt" },
@@ -141,12 +148,14 @@ export default {
             info: null,
             distFuntion: "hk",
             netType: null,
-            singleTable: []
+            singleTable: [],
+            nameGrafo: ""
         },
         selectModel: null,
         selectDis: "hk",
         disSigma: true,
         disBeta: true,
+  
         numberRule: val => {
             if(val < 0) return 'Please enter a positive number'
             return true
@@ -213,7 +222,7 @@ export default {
     },
     methods: {
         fnProccess(){
-            this.cg.info = this.info;
+            this.cg.info = this.$store.state.infoProyecto;
             this.cg.singleTable = this.singleTable;
             console.log(this.cg);
             axios

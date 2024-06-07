@@ -25,6 +25,9 @@
       Edges
     </v-tab>
     <v-tab>
+      Adjacency List
+    </v-tab>
+    <v-tab>
       Distance Matrix
     </v-tab>
   </v-tabs>
@@ -47,6 +50,10 @@
       </v-tab-item>
 
       <v-tab-item>
+        <adiacencia :headers="headers" :datos="adiacencia"></adiacencia>
+      </v-tab-item>
+
+      <v-tab-item>
         <distance :datos="datos"></distance>
       </v-tab-item>
 
@@ -66,18 +73,20 @@ import datos from "./data.vue";
 import distance from "./distance.vue";
 import edges from "./edges.vue";
 import nodes from "./nodes.vue";
+import adiacencia from "./adiacencia.vue";
 export default {
     name: "",
     props: [],
     components: {
-        barder, barizq, mapa, datos, distance, edges, nodes
+        barder, barizq, mapa, datos, distance, edges, nodes, adiacencia
     },
     data: () => ({
         tab: null,
         proyecto: null,
         headers: [],
         datos: [],
-        singleTable: []
+        singleTable: [],
+        adiacencia: []
         
     }),
     mounted() {
@@ -102,6 +111,10 @@ export default {
         .get("/projects/info/" + id)
         .then(res => {
         this.proyecto = res.data.info;
+        this.adiacencia = res.data.adjacencyList;
+        console.log(this.adiacencia);
+        this.$store.state.infoProyecto = res.data.info;
+        this.$store.state.grafos = res.data.grafos;
         console.log(res.data);
           var headers = res.data.table.aHeaders;
           var nodes = res.data.table.aNodes;

@@ -1,11 +1,11 @@
 <template>
-    <v-navigation-drawer app permanent width="350" >
+    <v-navigation-drawer app permanent width="350" class="above-all" >
 
 
         <v-tabs v-model="tab" fixed-tabs background-color="indigo" dark>
           
             <v-tab>
-                Compute Graph
+                Graph Layers
             </v-tab>
 
         </v-tabs>
@@ -13,8 +13,8 @@
         <v-tabs-items v-model="tab">
             
             <v-tab-item>
-                <compute :info="info" :singleTable="singleTable"></compute>
-               
+                <!--<compute :info="info" :singleTable="singleTable"></compute>-->
+               <grafos :info="info"></grafos>
                 
             </v-tab-item>
         </v-tabs-items>
@@ -24,12 +24,14 @@
 <script>
 import info from "./pinfo.vue";
 import compute from './compute.vue';
+import grafos from './grafos.vue';
 export default {
     name: "",
     props: ["info", "singleTable"],
     components: {
         info,
-        compute
+        compute,
+        grafos
     },
     data: () => ({
         tab: null,
@@ -54,3 +56,10 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.above-all {
+
+  z-index: 1000; /* A high value to ensure it's above other elements */
+}
+</style>

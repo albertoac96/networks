@@ -45,6 +45,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/compute', [App\Http\Controllers\proyectos\datosController::class, 'ComputeGraph']);
 
         Route::post('/controlnode', [App\Http\Controllers\proyectos\grafosControl::class, 'CalculateNodesControl']);
+
+        Route::get('/vergrafos/{id}', [App\Http\Controllers\proyectos\grafosControl::class, 'traeGrafos']);
     });
 
 

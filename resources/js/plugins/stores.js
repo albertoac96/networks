@@ -5,6 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
+        grafos: [],
         menu:{
             drawer: true,
             drawerR: true
@@ -38,8 +39,10 @@ export default new Vuex.Store({
         ],
         rutaPublic: "/",
         selectGraph: [],
+        selectGraphs: [],
         idGrafo: null,
         info: null,
+        infoProyecto: null,
         singleTable: [],
         meanControl: null
     },

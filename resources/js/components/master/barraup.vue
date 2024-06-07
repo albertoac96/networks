@@ -46,16 +46,13 @@
           Functions
         </v-btn>
       </template>
-      <v-list dense>
+      <v-list flat>
+        <v-list-item-group >        
         <v-list-item>
-          <v-list-item-title>Compute Graph</v-list-item-title>
+          <v-list-item-title @click="compute()">Compute Graph</v-list-item-title>
         </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Calculate Nodes Control</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title>Calculate Relative Assymetry</v-list-item-title>
-        </v-list-item>
+      </v-list-item-group>
+
       </v-list>
     </v-menu>
         
@@ -66,7 +63,7 @@
 
 <full></full>
  
-
+<compute @close="dlgCompute=false" :dlgCompute="dlgCompute"></compute>
 </v-system-bar>
 
  
@@ -77,6 +74,7 @@
 import full from '../menu/fullscreen.vue';
 import seeBarraDerecha from '../menu/seeBarraDerecha.vue';
 import menuPerfil from '../menu/menuPerfil.vue';
+import compute from '../pages/viewp/modalCompute.vue';
 export default {
   name: "menuTop",
   data: () => ({
@@ -88,11 +86,13 @@ export default {
         }
       
       ],
+      dlgCompute: false
     }),
   components:{
       full,
       seeBarraDerecha,
-      menuPerfil
+      menuPerfil,
+      compute
   },
   methods:{
     fnNodeControl(){
@@ -108,7 +108,11 @@ export default {
             })
             .catch((error) => {
             });
-        }
+        },
+    compute(){
+      console.log("Computar");
+      this.dlgCompute = true;
+    }
   }
   
 };

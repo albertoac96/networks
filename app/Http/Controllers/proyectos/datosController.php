@@ -79,6 +79,7 @@ class datosController extends Controller
 
     public function infoProyecto($id){
         $info = Proyecto::where('idProject', $id)->get();
+        $grafos = Grafo::where('idProyecto', $id)->get();
         $tabla = Table::where('idProject', $id)->get();
         //return $tabla;
         $tabla[0]->aTable = json_decode($tabla[0]->aTable);
@@ -90,6 +91,7 @@ class datosController extends Controller
         return response()->json([
             'info' => $info[0],
             'table' => $tabla[0],
+            'grafos' => $grafos
         ]);
     }
 
@@ -170,6 +172,7 @@ class datosController extends Controller
         $PiSigma = $request->sigma;
         $PcDistFunction = $request->distFuntion;
         $PcNetType = $request->netType;
+        $PcName = $request->nameGrafo;
 
         
         // Creates an array to store distances between each pair of points
@@ -191,7 +194,7 @@ class datosController extends Controller
         $adjacencyListA = array();
         $adjacencyList = $this->RNG_AdjacencyList(count($PaDataSource));
 
-        $geoCoordinates = $this->creaGeoJSON('FeatureCollection','modelo1','urn:ogc:def:crs:EPSG::8992');
+        $geoCoordinates = $this->creaGeoJSON('FeatureCollection',$PcName,'urn:ogc:def:crs:EPSG::8992');
 
         $Pcoordinates = array();
 

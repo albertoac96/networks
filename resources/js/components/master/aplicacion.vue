@@ -1,6 +1,6 @@
 <template>
   <v-app>
-      <barraup></barraup>
+      <barraup class="above-all"></barraup>
     
     
     <!-- Sizes your content based upon application components -->
@@ -54,3 +54,11 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.above-all {
+  position: relative; /* or absolute, fixed, or sticky depending on your layout */
+  z-index: 1000; /* A high value to ensure it's above other elements */
+}
+</style>
+

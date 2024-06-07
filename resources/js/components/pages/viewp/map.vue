@@ -57,7 +57,7 @@
             </l-control>
 
 
-            <l-control position="bottomleft" v-if="this.$store.state.selectGraph!=[]">
+           <!-- <l-control position="bottomleft" v-if="this.$store.state.selectGraph!=[]">
                 <v-card>
                     <div>
                         <v-chip
@@ -72,7 +72,7 @@
                         </v-chip>
                     </div>
                 </v-card>
-            </l-control>
+            </l-control>-->
 
             <l-control position="topleft">
                 <v-card class="pa-2">
@@ -98,14 +98,20 @@
                 <l-popup :content="item.NodeName" />
             </l-circle-marker>
 
-            <l-geo-json :geojson="$store.state.selectGraph.geo"> </l-geo-json>
+            <!--<l-geo-json :geojson="$store.state.selectGraph.geo"> </l-geo-json>-->
+
+            <l-geo-json
+      v-for="(geoItem, name) in $store.state.selectGraphs"
+      :key="name"
+      :geojson="geoItem"
+    ></l-geo-json>
 
             <l-layer-group
                 :options="{ zoomToBounds: true }"
                 v-if="geojsonLayer"
             >
                 <l-geo-json
-                    :geojson="$store.state.selectGraph.geo"
+                    :geojson="$store.state.selectGraphs.geo"
                 ></l-geo-json>
             </l-layer-group>
         </l-map>

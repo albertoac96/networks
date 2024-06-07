@@ -223,6 +223,11 @@ class grafosControl extends Controller
         
     }
 
+    public function traeGrafos($clave){
+        $aGrafos = Grafo::where('idProyecto', $clave)->get();
+        return $aGrafos;
+    }
+
     
     
 }
