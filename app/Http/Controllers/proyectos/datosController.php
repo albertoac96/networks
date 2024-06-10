@@ -340,9 +340,10 @@ class datosController extends Controller
             'idProyecto' => $request->info['idProject']
         ]);
 
+        $grafo = Grafo::where('idGrafo', $grafo->idGrafo)->get();
+
         return response()->json([
-            "datos" => $data,
-            "idGrafo" => $grafo->idGrafo
+            "grafo" => $grafo
         ]);
     }
 

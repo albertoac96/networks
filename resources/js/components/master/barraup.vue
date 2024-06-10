@@ -28,7 +28,9 @@
           <v-list-item-title>About</v-list-item-title>
         </v-list-item>
         <v-list-item>
-          <v-list-item-title>Return to my projects</v-list-item-title>
+          <router-link to="/">
+            <v-list-item-title>Return to my projects</v-list-item-title>
+          </router-link>
         </v-list-item>
       </v-list>
     </v-menu>

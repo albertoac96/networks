@@ -8,13 +8,22 @@
                 Graph Layers
             </v-tab>
 
+            <v-tab>
+                Compute graph
+            </v-tab>
+
         </v-tabs>
 
         <v-tabs-items v-model="tab">
             
             <v-tab-item>
-                <!--<compute :info="info" :singleTable="singleTable"></compute>-->
+           
                <grafos :info="info"></grafos>
+                
+            </v-tab-item>
+            <v-tab-item>
+                <compute :info="info" :singleTable="singleTable"></compute>
+        
                 
             </v-tab-item>
         </v-tabs-items>

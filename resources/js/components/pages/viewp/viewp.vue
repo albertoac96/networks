@@ -38,7 +38,7 @@
       </v-tab-item>
    
       <v-tab-item>
-        <datos :headers="headers" :datos="datos" :singleTable="singleTable"></datos>
+        <datos :headers="headersOriginal" :datos="datos" :singleTable="singleTable"></datos>
       </v-tab-item>
 
       <v-tab-item>
@@ -86,8 +86,8 @@ export default {
         headers: [],
         datos: [],
         singleTable: [],
-        adiacencia: []
-        
+        adiacencia: [],
+        headersOriginal: []
     }),
     mounted() {
       this.inicio();
@@ -117,6 +117,7 @@ export default {
         this.$store.state.grafos = res.data.grafos;
         console.log(res.data);
           var headers = res.data.table.aHeaders;
+         this.headersOriginal = headers;
           var nodes = res.data.table.aNodes;
           this.datos = res.data.table.aTable;
           this.singleTable = res.data.table.aSingleTable;
@@ -125,6 +126,7 @@ export default {
           console.log('HEADERS')
           console.log(headers);
           console.log(nodes);
+          console.log(this.datos);
 
           var positions = new Array();
           if(nodes.id != null){

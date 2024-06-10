@@ -1,11 +1,11 @@
 <template>
 
     <v-card>
-       
+    
         <v-card-text>
             <template>
     <vue-excel-editor v-model="datos" width="100%" readonly>
-        <vue-excel-column v-for="item in headers" :key="item.index" :field="item.index" :label="item.name" type="string"  />
+        <vue-excel-column v-for="(item, index) in headers" :key="index" :field="index" :label="item" type="string"  />
     </vue-excel-editor>
 </template>
 

@@ -13,6 +13,8 @@ class Grafo extends Model
     protected $fillable = [
        'cContenido',
         'idProyecto',
-        'ControlValues'
+        'ControlValues',
+        'MeanControl',
+        'RelativeAssy'
     ];
 }

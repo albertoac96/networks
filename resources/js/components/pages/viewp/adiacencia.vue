@@ -12,10 +12,10 @@
                 ref="grid"
             >
                 <vue-excel-column
-                    v-for="item in headers"
-                    :key="item.index"
-                    :field="item.index"
-                    :label="item.index"
+                    v-for="(item, index) in Object.keys(jsondata[0])"
+                    :key="index"
+                    :field="item"
+                    :label="item"
                     type="string"
                 />
             </vue-excel-editor>
@@ -40,19 +40,22 @@ export default {
     watch: {
         "$store.state.selectGraph.adjacencyList"(){
              // Transformar los datos originales al formato adecuado para vue-excel-editor
-            this.jsondata = this.$store.state.selectGraph.adjacencyList;
-            return originalData.map(row => {
-                const formattedRow = {};
-                row.forEach((item, index) => {
-                formattedRow[`col${index + 1}`] = `(${item[0]}, ${item[1]})`;
-                });
-                return formattedRow;
-            });
+            //this.jsondata = this.$store.state.selectGraph.adjacencyList;
+            this.jsondata = [];
+            this.formattedData();
+            
         }
     },
     computed: {
         formattedData() {
-     
+            this.jsondata = this.$store.state.selectGraph.adjacencyList.map((row, rowIndex) => {
+                const obj = {};
+                row.forEach(([key, value], index) => {
+                    obj[`column_${index}`] = value;
+                });
+                return obj;
+            });
+         
     }
     },
     methods: {}

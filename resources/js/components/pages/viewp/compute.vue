@@ -205,9 +205,14 @@ export default {
             axios
               .post("/projects/compute", this.cg)
               .then((res) => {
-                this.$store.state.selectGraph = res.data.datos;
-                this.$store.state.idGrafo = res.data.idGrafo;
-                this.$store.state.singleTable = res.data.datos.nodes;
+                var contenido = JSON.parse(res.data.grafo[0].cContenido);
+                this.$store.state.selectGraph = contenido;
+                this.$store.state.idGrafo = res.data.grafo[0].idGrafo;
+                this.$store.state.singleTable = contenido.nodes;
+                this.$store.state.grafos.push(res.data.grafo[0]);
+                console.log(contenido);
+                console.log(res.data);
+                console.log(this.$store.state.grafos);
             })
             .catch((error) => {
             });
