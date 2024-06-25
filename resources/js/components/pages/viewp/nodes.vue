@@ -13,7 +13,7 @@
                 disable-panel-setting
                 ref="grid"
             >
-            <vue-excel-column field="NodeID" label="ID" type="string"  />
+            <vue-excel-column field="NodeID" label="ID" type="number" readonly />
             <vue-excel-column field="NodeName" label="NodeName" type="string"  />
             <vue-excel-column field="NodeX" label="NodeX" type="number"  />
             <vue-excel-column field="NodeY" label="NodeY" type="number"  />

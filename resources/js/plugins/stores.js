@@ -44,7 +44,14 @@ export default new Vuex.Store({
         info: null,
         infoProyecto: null,
         singleTable: [],
-        meanControl: null
+        meanControl: null,
+        stylePuntos:{
+            radio: 5,
+            color: "#FF00FFFF",
+            fillcolor: "#FF00FFFF",
+            weight: 3
+        },
+        tabLeft: 0
     },
     getters: {
 

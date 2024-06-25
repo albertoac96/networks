@@ -1,12 +1,43 @@
 <template>
-    <div>
-        <v-overlay :value="overlay">
-            <v-progress-circular indeterminate size="64"></v-progress-circular>
-        </v-overlay>
+   
+<div>
 
+   <!-- <v-toolbar dense>
+        
+   
+            <v-btn-toggle
+        v-model="options.basemap"
+        mandatory
+        dense
+        outlined
+      >
+        <v-btn outlined>
+          <v-icon>mdi-format-align-left</v-icon>
+        </v-btn>
+
+        <v-btn outlined>
+          <v-icon>mdi-format-align-center</v-icon>
+        </v-btn>
+
+        <v-btn outlined>
+          <v-icon>mdi-format-align-right</v-icon>
+        </v-btn>
+
+      </v-btn-toggle>
+
+      <v-btn dense elevation="0" outlined>
+          <v-icon>mdi-format-align-right</v-icon>
+        </v-btn>
+        <v-btn dense elevation="0" outlined>
+          <v-icon>mdi-format-align-right</v-icon>
+        </v-btn>
+
+</v-toolbar>-->
+  
+    <div>
         <l-map
             ref="map"
-            style="height:80vh"
+            style="height:85vh"
             :zoom="zoom"
             :max-zoom="maxZoom"
             :min-zoom="minZoom"
@@ -14,7 +45,7 @@
             :options="leafletMapOptions"
         >
             <l-control-fullscreen
-                position="bottomleft"
+                position="bottomright"
                 :options="{ title: { false: 'Go big!', true: 'Be regular' } }"
             />
 
@@ -39,7 +70,7 @@
                 :collapsed="false"
             ></l-control-layers>
 
-            <l-control position="bottomleft">
+            <l-control position="bottomright">
                 <v-card>
                     <div>
                         <v-chip
@@ -74,7 +105,7 @@
                 </v-card>
             </l-control>-->
 
-            <l-control position="topleft">
+            <l-control position="topright">
                 <v-card class="pa-2">
                     <v-chip small color="success" outlined>
                         <input
@@ -85,14 +116,35 @@
                         Mostrar etiquetas
                     </v-chip>
                 </v-card>
+
+                <button @click="exportMap">Exportar Mapa</button>
+
+               <div> <v-menu offset-y>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          color="primary"
+          dark
+          v-bind="attrs"
+          v-on="on"
+        >
+          Dropdown
+        </v-btn>
+      </template>
+     <label>hola</label>
+    </v-menu>
+</div>
+
             </l-control>
 
             <l-circle-marker
                 v-for="item in singleTable"
                 :key="item.NodeID"
                 :lat-lng="getCoords(item.NodeX, item.NodeY)"
-                :radius="5"
-                color="white"
+                :radius="$store.state.stylePuntos.radio"
+                :color="$store.state.stylePuntos.color"
+                :fillColor="$store.state.stylePuntos.fillcolor"
+                :fillOpacity="1"
+                :weight="$store.state.stylePuntos.weight"
             >
                 <l-tooltip :options="tooltip">{{ item.NodeID }}</l-tooltip>
                 <l-popup :content="item.NodeName" />
@@ -101,21 +153,17 @@
             <!--<l-geo-json :geojson="$store.state.selectGraph.geo"> </l-geo-json>-->
 
             <l-geo-json
-      v-for="(geoItem, name) in $store.state.selectGraphs"
-      :key="name"
+      v-for="geoItem in $store.state.selectGraphs"
+      :key="geoItem.id"
       :geojson="geoItem"
     ></l-geo-json>
 
-            <l-layer-group
-                :options="{ zoomToBounds: true }"
-                v-if="geojsonLayer"
-            >
-                <l-geo-json
-                    :geojson="$store.state.selectGraphs.geo"
-                ></l-geo-json>
-            </l-layer-group>
+           
         </l-map>
     </div>
+    
+    
+</div>
 </template>
 
 <script>
@@ -142,6 +190,7 @@ import LControlFullscreen from "vue2-leaflet-fullscreen";
 import "leaflet-easyprint";
 import "proj4leaflet";
 import proj4 from "proj4";
+import leafletImage from 'leaflet-image';
 
 const swissCrs = new L.Proj.CRS(
     "EPSG:2056",
@@ -210,13 +259,19 @@ export default {
             minZoom: 0,
             center: [51.505, -0.159],
             markerLatLng: [51.504, -0.159],
+            options:{
+                basemap: 0,
+            },
             tooltip: {
                 permanent: true,
                 sticky: false,
                 className: "leaflet-tooltip leaflet-tooltip-css",
                 interactive: true
             },
-
+            circle: {
+                radio: 3
+            },
+            coordCentro: { x: 0, y: 0 },
             overlay: false,
             leafletMapOptions: {
                 closePopupOnClick: false,
@@ -237,7 +292,7 @@ export default {
                         sE: { lat: null, long: null },
                         sO: { lat: null, long: null }
                     },
-                    zoom: { max: 20, min: 4, inicial: 4 },
+                    zoom: { max: 20, min: 4, inicial: 10 },
                     mapasBase: {
                         "0": {
                             nombre: "ESRI",
@@ -287,19 +342,40 @@ export default {
         var layerGroup = new L.LayerGroup();
         layerGroup.addTo(this.map);
         layerGroup.addLayer(myLayer);*/
+        },
+        singleTable(){
+            if(this.singleTable){
+                var centro = this.calculateCenter;
+                console.log(centro);
+                this.center = L.latLng(
+                    centro.y,
+                    centro.x
+                );
+                this.zoom = this.mapa.infoMapa.zoom.inicial;
+            }
         }
     },
-    computed: {},
+    computed: {
+        calculateCenter() {
+      const totalCoords = this.singleTable.length;
+      console.log(this.singleTable);
+      const sum = this.singleTable.reduce((acc, coord) => {
+        acc.x += coord.NodeX;
+        acc.y += coord.NodeY;
+        return acc;
+      }, { x: 0, y: 0 });
+
+      return {
+        x: sum.x / totalCoords,
+        y: sum.y / totalCoords
+      };
+    }
+    },
     methods: {
         inicio() {
             console.log("ENTRO");
-            this.zoom = this.mapa.infoMapa.zoom.inicial;
             this.maxZoom = this.mapa.infoMapa.zoom.max;
             this.minZoom = this.mapa.infoMapa.zoom.min;
-            this.center = L.latLng(
-                this.mapa.infoMapa.centro.lat,
-                this.mapa.infoMapa.centro.long
-            );
         },
         getCoords(x, y) {
             return L.latLng(y, x);
@@ -314,6 +390,23 @@ export default {
                 { animate: true }
             );
         },
+
+        exportMap() {
+    
+
+      leafletImage(this.map, (err, canvas) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        const img = document.createElement('img');
+        img.src = canvas.toDataURL();
+        const link = document.createElement('a');
+        link.href = img.src;
+        link.download = 'mapa.jpg';
+        link.click();
+      });
+    },
 
         fnTooltip() {
             let refToDisplay = "ref";

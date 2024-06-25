@@ -12,7 +12,7 @@
             <v-btn
               color="primary"
               dark
-              class="mb-2"
+
               to="/newp"
             >
               New

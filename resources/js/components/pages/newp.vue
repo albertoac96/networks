@@ -122,6 +122,7 @@
                                                     :items="items"
                                                     label="Node X"
                                                     v-model="nodes.x"
+                                                    @change="chkCoords()"
                                                 ></v-combobox>
                                             </v-col>
 
@@ -130,9 +131,20 @@
                                                     :items="items"
                                                     label="Node Y"
                                                     v-model="nodes.y"
+                                                    @change="chkCoords()"
                                                 ></v-combobox>
                                             </v-col>
                                         </v-row>
+
+                                        <v-alert
+                                            v-if="alert.visible"
+                                            dense
+                                            :outlined="alert.outlined"
+                                            :type="alert.type"
+                                            dismissible
+                                        >
+                                            {{ alert.text }}
+                                        </v-alert>
                                     </v-card-text>
                                     <v-card-actions>
                                         <v-btn color="primary" @click="e1 = 3">
@@ -174,85 +186,86 @@
 import readXlsFile from "read-excel-file";
 import download from "downloadjs";
 
-
-
-    export default {
-        name: "",
-        props: [],
-        components:{
-
+export default {
+    name: "",
+    props: [],
+    components: {},
+    data: () => ({
+        e1: 1,
+        items: [],
+        hojas: [],
+        selectHoja: null,
+        nodes: {
+            id: null,
+            name: null,
+            x: null,
+            y: null
         },
-        data: () => ({
-            e1: 1,
-            items: [],
-            hojas: [],
-            selectHoja: null,
-            nodes: {
-              id: null,
-              name: null,
-              x: null,
-              y: null
-            },
-            info:{
-              name: "",
-              desc: ""
-            },
-            datos: [],
-            fArchivo: [],
-            iArchivo:true,
-        }),
-        mounted(){
-
+        info: {
+            name: "",
+            desc: ""
         },
-        created(){
-
-        },
-        beforeMount(){
-
-        },
-        watch:{
-          selectHoja(){
+        datos: [],
+        fArchivo: [],
+        iArchivo: true,
+        alert: {
+            outlined: true,
+            type: "error",
+            text: "Hola",
+            visible: false
+        }
+    }),
+    mounted() {},
+    created() {},
+    beforeMount() {},
+    watch: {
+        selectHoja() {
             console.log(this.selectHoja);
-            readXlsFile(this.fArchivo, { sheet: this.selectHoja.name }).then((data) => {
-              this.items = data[0];
-              this.datos = data.slice(1);
-              console.log(this.items);
-            });
-          }
-        },
-        computed:{
-
-        },
-        methods:{
-          subirExcel(){
+            readXlsFile(this.fArchivo, { sheet: this.selectHoja.name }).then(
+                data => {
+                    this.items = data[0];
+                    this.datos = data.slice(1);
+                    console.log("ITEMS");
+                    console.log(this.items);
+                }
+            );
+        }
+    },
+    computed: {},
+    methods: {
+        subirExcel() {
             console.log(this.fArchivo);
-            if(this.fArchivo.type == 'text/csv' || this.fArchivo.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || this.fArchivo.type == 'application/vnd.ms-excel' || this.fArchivo.type == 'shp' ){
-              this.iArchivo = true;
+            if (
+                this.fArchivo.type == "text/csv" ||
+                this.fArchivo.type ==
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+                this.fArchivo.type == "application/vnd.ms-excel" ||
+                this.fArchivo.type == "shp"
+            ) {
+                this.iArchivo = true;
 
+                const file = this.fArchivo;
 
-              const file = this.fArchivo;
+                readXlsFile(file, { getSheets: true }).then(sheets => {
+                    this.hojas = sheets;
+                    console.log(this.hojas);
+                });
 
-            readXlsFile(file, { getSheets: true }).then((sheets) => {
-                this.hojas = sheets;
-                console.log(this.hojas);
-            });
+                let InstFormData = new FormData();
+                InstFormData.append("archivo", this.fArchivo);
 
-              let InstFormData = new FormData();
-              InstFormData.append('archivo' , this.fArchivo);
-
-              axios
-        .post("/projects/check", InstFormData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          console.log(res.data);
-        })
-        .catch((error) => {});
-
+                axios
+                    .post("/projects/check", InstFormData, {
+                        headers: {
+                            "Content-Type": "multipart/form-data"
+                        }
+                    })
+                    .then(res => {
+                        console.log(res.data);
+                    })
+                    .catch(error => {});
             } else {
-              this.iArchivo = false;
+                this.iArchivo = false;
             }
 
             /*const input = document.getElementById("archivoExcel");
@@ -269,39 +282,119 @@ import download from "downloadjs";
                 console.log(this.items);
             })*/
             //readXlsFile(input.files[0]).then((rows)=>{     })
+        },
+        chkCoords() {
+            if ((this.nodes.x != null) & (this.nodes.y != null)) {
+                console.log(this.nodes);
+                const indexx = this.items.findIndex(
+                    element => element === this.nodes.x
+                );
+                const indexy = this.items.findIndex(
+                    element => element === this.nodes.y
+                );
+                console.log(indexx);
+                console.log(indexy);
+                console.log(this.selectHoja);
+                readXlsFile(this.fArchivo, { sheet: this.selectHoja.name })
+                    .then(rows => {
+                        console.log(rows);
+                        this.checkData(rows, indexx, indexy);
+                    })
+                    .catch(error => {
+                        this.alert.outlined = true;
+                        this.alert.type = "error";
+                        this.alert.text = "Error reading sheet";
+                        this.alert.visible = true;
+                        console.error("Error reading sheet:", error);
+                    });
+            }
+        },
 
-          },
-          createp(){
+        checkData(rows, ix, iy) {
+            const latColIndex = iy; // Índice de la columna de Latitud (DD) Y1
+            const longColIndex = ix; // Índice de la columna de Longitud (DD) X1
+            const latitudes = new Set();
+            const longitudes = new Set();
+            let hasDuplicates = false;
+            let hasEmptyFields = false;
+
+            for (let i = 1; i < rows.length; i++) {
+                // Comienza desde 1 para ignorar el encabezado
+                const row = rows[i];
+                const lat = row[latColIndex];
+                const long = row[longColIndex];
+
+                if (!lat || !long) {
+                    hasEmptyFields = true;
+                        this.alert.outlined = true;
+                        this.alert.type = "error";
+                        this.alert.text = `Empty field found in row ${i + 1}`;
+                        this.alert.visible = true;
+                    console.log(`Empty field found in row ${i + 1}`);
+                }
+
+                if (latitudes.has(lat) || longitudes.has(long)) {
+                    hasDuplicates = true;
+                        this.alert.outlined = true;
+                        this.alert.type = "error";
+                        this.alert.text = `Duplicate found in row ${i + 1}`;
+                        this.alert.visible = true;
+                    console.log(`Duplicate found in row ${i + 1}`);
+                }
+
+                latitudes.add(lat);
+                longitudes.add(long);
+            }
+
+            if (!hasDuplicates && !hasEmptyFields) {
+                    this.alert.outlined = true;
+                        this.alert.type = "success";
+                        this.alert.text = `No duplicates or empty fields found.`;
+                        this.alert.visible = true;
+                console.log("No duplicates or empty fields found.");
+            } else {
+                if (hasDuplicates)
+                
+                    console.log("There are duplicates in the data.");
+                if (hasEmptyFields)
+                
+                    console.log("There are empty fields in the data.");
+            }
+        },
+        createp() {
             let InstFormData = new FormData();
-            InstFormData.append('archivo' , this.fArchivo);
-
+            InstFormData.append("archivo", this.fArchivo);
 
             axios
-                .post("/projects/new", {archivo: this.fArchivo.name, nodos: this.nodes, titulos: this.items, datos: this.datos, info: this.info, hoja: this.selectHoja})
-                .then((res) => {
-                  const idProyecto = res.data.idProject;
-                  const uuid = res.data.uuid;
-                  InstFormData.append('id' , uuid);
-                  axios
-                    .post("/projects/archivoup", InstFormData, {
-                      headers: {
-                        "Content-Type": "multipart/form-data",
-                      },
-                    })
-                    .then((res) => {
-                      console.log(res.data);
-                      this.$router.push('/verp/' + idProyecto);
-                    })
-                    .catch((error) => {});
-
-                      
+                .post("/projects/new", {
+                    archivo: this.fArchivo.name,
+                    nodos: this.nodes,
+                    titulos: this.items,
+                    datos: this.datos,
+                    info: this.info,
+                    hoja: this.selectHoja
                 })
-                .catch((error) => {
-           });
+                .then(res => {
+                    const idProyecto = res.data.idProject;
+                    const uuid = res.data.uuid;
+                    InstFormData.append("id", uuid);
+                    axios
+                        .post("/projects/archivoup", InstFormData, {
+                            headers: {
+                                "Content-Type": "multipart/form-data"
+                            }
+                        })
+                        .then(res => {
+                            console.log(res.data);
+                            this.$router.push("/verp/" + idProyecto);
+                        })
+                        .catch(error => {});
+                })
+                .catch(error => {});
 
             //this.$router.push('/verp/1')
             //download(JSON.stringify(this.datos), "apidata.json", "text/plain");
-          }
         }
     }
+};
 </script>

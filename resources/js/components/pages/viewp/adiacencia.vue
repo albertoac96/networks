@@ -4,20 +4,15 @@
 
 
             <vue-excel-editor
-                v-model="jsondata"
+               v-model="jsondata"
                 width="100%"
                 readonly
                 disable-panel-filter
                 disable-panel-setting
                 ref="grid"
             >
-                <vue-excel-column
-                    v-for="(item, index) in Object.keys(jsondata[0])"
-                    :key="index"
-                    :field="item"
-                    :label="item"
-                    type="string"
-                />
+            <vue-excel-column field="node" label="Node" type="string" readonly width="200px"/>
+            <vue-excel-column field="relaciones" label="Relations" type="string" width="500px" />
             </vue-excel-editor>
         </v-card-text>
         {{ $store.state.selectGraph.adjacencyList }}
@@ -31,7 +26,8 @@ export default {
     props: ["headers", "datos"],
     components: {},
     data: () => ({
-        jsondata: []
+        jsondata: [],
+        encabezados: []
     }),
 
     mounted() {},
@@ -42,20 +38,47 @@ export default {
              // Transformar los datos originales al formato adecuado para vue-excel-editor
             //this.jsondata = this.$store.state.selectGraph.adjacencyList;
             this.jsondata = [];
-            this.formattedData();
+            console.log("INICIE");
+            console.log(this.$store.state.selectGraph.adjacencyList.length);
+            console.log(this.$store.state.singleTable);
+            for(var i=0; this.$store.state.selectGraph.adjacencyList.length>i; i++){
+                console.log(this.$store.state.singleTable[i]);
+                var titulo = this.$store.state.singleTable[i].NodeID + "-" + this.$store.state.singleTable[i].NodeName;
+                this.encabezados.push(titulo);
+                console.log(this.$store.state.selectGraph.adjacencyList[i]);
+                var elementos = "";
+                for(var u=0; this.$store.state.selectGraph.adjacencyList[i].length>u; u++){
+                    console.log(this.$store.state.selectGraph.adjacencyList[i][u][0]);
+                    const index = this.$store.state.singleTable.findIndex(item => item.NodeID == this.$store.state.selectGraph.adjacencyList[i][u][0]+1);
+                    console.log(index);
+                    if(index == -1){
+                        console.log("NO EXISTE");
+                    } else {
+                        console.log(this.$store.state.singleTable[index]);
+                        
+                        elementos = elementos + this.$store.state.singleTable[index].NodeID + "-" + this.$store.state.singleTable[index].NodeName + "; ";
+                        
+                        
+                        
+                        
+                    }
+                }
+
+                var elemento = { node: this.$store.state.singleTable[i].NodeID + "-" + this.$store.state.singleTable[i].NodeName, 
+                        relaciones: elementos };
+                        console.log(elemento);
+                        this.jsondata.push(elemento);
+                
+            }
+
+            console.log(this.encabezados);
+            console.log(this.jsondata);
             
         }
     },
     computed: {
         formattedData() {
-            this.jsondata = this.$store.state.selectGraph.adjacencyList.map((row, rowIndex) => {
-                const obj = {};
-                row.forEach(([key, value], index) => {
-                    obj[`column_${index}`] = value;
-                });
-                return obj;
-            });
-         
+           
     }
     },
     methods: {}

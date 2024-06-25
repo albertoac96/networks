@@ -18,7 +18,7 @@
       >
       <v-list-item v-for="(grafo, idGrafo) in $store.state.grafos" :key="idGrafo">
          
-            <v-list-item-action>
+            <v-list-item-action v-if="grafo.cContenido!=null">
               <v-checkbox
                 :input-value="grafo.active"
                 @change="toggleGrafo(grafo, $event)"
@@ -99,12 +99,16 @@ export default {
     },
     methods: {
         toggleGrafo(grafo, event){
-            if(event === true){
-                var contenido = JSON.parse(grafo.cContenido);
+            console.log("ENTRE A TOGGLE");
+            console.log(grafo);
+            var contenido = JSON.parse(grafo.cContenido);
                 console.log(contenido);
+                console.log(this.$store.state.grafos);
+            if(event === true){
                 this.$store.state.selectGraphs.push(contenido.geo);
             } else {
-                const index = this.$store.state.grafos.findIndex(geo => geo.name === grafo.name);
+                const index = this.$store.state.selectGraphs.findIndex(item => item.id == contenido.geo.id);
+                console.log(contenido.geo.id);
                 console.log(index);
                 this.$store.state.selectGraphs.splice(index, 1);
             }

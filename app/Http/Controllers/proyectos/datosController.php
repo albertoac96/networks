@@ -143,10 +143,11 @@ class datosController extends Controller
     }
 
 
-    private function creaGeoJSON($type, $name, $crsname){
+    private function creaGeoJSON($type, $name, $crsname, $idGrafo){
         $LcResp = array();
         $LcResp["type"] = $type;
         $LcResp["name"]= $name;
+        $LcResp["id"] = $idGrafo;
         $LcResp["crs"]= array();
         $LcResp["crs"]["type"]=$crsname;
         $LcResp["crs"]["properties"]=array();
@@ -174,6 +175,11 @@ class datosController extends Controller
         $PcNetType = $request->netType;
         $PcName = $request->nameGrafo;
 
+        $grafo = Grafo::create([
+            'idProyecto' => $request->info['idProject']
+        ]);
+
+        
         
         // Creates an array to store distances between each pair of points
         $distanceMatrix = $this->MakeDistanceMatrix($PaDataSource, $PcDistFunction);
@@ -194,7 +200,7 @@ class datosController extends Controller
         $adjacencyListA = array();
         $adjacencyList = $this->RNG_AdjacencyList(count($PaDataSource));
 
-        $geoCoordinates = $this->creaGeoJSON('FeatureCollection',$PcName,'urn:ogc:def:crs:EPSG::8992');
+        $geoCoordinates = $this->creaGeoJSON('FeatureCollection',$PcName,'urn:ogc:def:crs:EPSG::8992', $grafo->idGrafo);
 
         $Pcoordinates = array();
 
@@ -335,9 +341,8 @@ class datosController extends Controller
             'nodes'=> $PaDataSource
         ];
 
-        $grafo = Grafo::create([
+        Grafo::where('idGrafo', $grafo->idGrafo)->update([
             'cContenido' => json_encode($data),
-            'idProyecto' => $request->info['idProject']
         ]);
 
         $grafo = Grafo::where('idGrafo', $grafo->idGrafo)->get();

@@ -1,14 +1,14 @@
 <template>
     <v-card flat>
           <v-card-text>
-            <h5>Project Info</h5>
+            <!--<h5>Project Info</h5>
             <p> <b>Name:</b> {{ info.cName }}<br>
             <b>Description:</b> {{ info.cDescription }}<br>
             <b>Created at:</b> {{ this.cFechaYMDlarga(info.created_at) }} <br>
             <b>Updated at:</b> {{ this.cFechaYMDlarga(info.updated_at) }} <br>
             <b>Original name: </b> {{ info.cDocName }} <br>
             <b>Sheet: </b> {{ info.cSheet }} <br>
-        </p>
+        </p>-->
 
         <v-col cols="12">
                 <v-btn color="error" @click="fnNodeControl()">Calculate Nodes Control</v-btn>
@@ -205,14 +205,20 @@ export default {
             axios
               .post("/projects/compute", this.cg)
               .then((res) => {
+                console.log("COMPUTE");
                 var contenido = JSON.parse(res.data.grafo[0].cContenido);
                 this.$store.state.selectGraph = contenido;
                 this.$store.state.idGrafo = res.data.grafo[0].idGrafo;
                 this.$store.state.singleTable = contenido.nodes;
                 this.$store.state.grafos.push(res.data.grafo[0]);
+                var total = this.$store.state.grafos.length;
+                var contenidoNuevo = JSON.parse(this.$store.state.grafos[total-1].cContenido);
+                this.$store.state.grafos[total-1].active = true;
+                this.$store.state.selectGraphs.push(contenidoNuevo.geo);
                 console.log(contenido);
                 console.log(res.data);
                 console.log(this.$store.state.grafos);
+                this.$store.state.tabLeft = 0;
             })
             .catch((error) => {
             });

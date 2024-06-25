@@ -2,7 +2,7 @@
     <v-navigation-drawer app permanent width="350" class="above-all" >
 
 
-        <v-tabs v-model="tab" fixed-tabs background-color="indigo" dark>
+        <v-tabs v-model="$store.state.tabLeft" fixed-tabs background-color="indigo" dark>
           
             <v-tab>
                 Graph Layers
@@ -14,7 +14,7 @@
 
         </v-tabs>
 
-        <v-tabs-items v-model="tab">
+        <v-tabs-items v-model="$store.state.tabLeft">
             
             <v-tab-item>
            

@@ -1,33 +1,51 @@
 <template>
-    <v-navigation-drawer app right width="250" color="blue-grey lighten-5">
 
-        <v-tabs
-  v-model="tab"
-  
-    background-color="indigo"
-    dark
-  >
-    <v-tab>
-      MAP LEGEND
-    </v-tab>
 
+  <v-navigation-drawer app right width="250" color="blue-grey lighten-5">
+  <v-col class="px-4">
+    <v-slider
+      v-model="$store.state.stylePuntos.radio"
+      :max="25"
+      :min="0"
+      hide-details
+      class="align-center"
+      label="Radio"
+    ></v-slider>
+  </v-col>
+
+  <v-col class="px-4">
+    <v-slider
+      v-model="$store.state.stylePuntos.weight"
+      :max="10"
+      :min="0"
+      hide-details
+      class="align-center"
+      label="Borde"
+    ></v-slider>
+  </v-col>
+
+
+  <v-col class="px-4">
+  <v-color-picker
+      v-model="$store.state.stylePuntos.color"
+      class="ma-2"
+      hide-inputs
+      label="Borde"
+    ></v-color-picker>
+    </v-col>
+
+    <v-col class="px-4">
+  <v-color-picker
+      v-model="$store.state.stylePuntos.fillcolor"
+      class="ma-2"
+      hide-inputs
+      label="Relleno"
+    ></v-color-picker>
+    </v-col>
     
-  </v-tabs>
-
-  <v-tabs-items v-model="tab">
-      <v-tab-item>
-        <v-card flat>
-                    <v-card-text>LEGENDAS</v-card-text>
-                </v-card>
-      </v-tab-item>
-   
-     
-    </v-tabs-items>
-
-    
+  </v-navigation-drawer>
 
 
-    </v-navigation-drawer>
 </template>
 <script>
 
@@ -39,7 +57,8 @@ export default {
     },
     data: () => ({
         tab: null,
-       
+       rango: [-20, 70],
+       color: "#FF00FFFF"
     }),
     mounted() {
 

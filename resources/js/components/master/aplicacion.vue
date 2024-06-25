@@ -57,8 +57,8 @@ export default {
 
 <style scoped>
 .above-all {
-  position: relative; /* or absolute, fixed, or sticky depending on your layout */
-  z-index: 1000; /* A high value to ensure it's above other elements */
+  position: fixed; /* or absolute, fixed, or sticky depending on your layout */
+  z-index: 900; /* A high value to ensure it's above other elements */
 }
 </style>
 

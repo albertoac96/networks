@@ -4,7 +4,7 @@
 <v-system-bar 
   height="30"
   color="grey darken-3"
-  elevation="2"
+
   app
   window
 >

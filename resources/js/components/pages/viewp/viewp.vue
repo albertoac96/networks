@@ -1,10 +1,14 @@
 <template>
     <div>
-       
+      <NodeNetwork v-if="loading" />
       <barizq :info="proyecto" :singleTable="singleTable"></barizq>
+
+      <barder :info="proyecto"></barder>
       
 
         <v-card>
+
+         
            
   <v-tabs
   v-model="tab"
@@ -74,6 +78,7 @@ import distance from "./distance.vue";
 import edges from "./edges.vue";
 import nodes from "./nodes.vue";
 import adiacencia from "./adiacencia.vue";
+import NodeNetwork from './network_animation.vue';
 export default {
     name: "",
     props: [],
@@ -87,7 +92,8 @@ export default {
         datos: [],
         singleTable: [],
         adiacencia: [],
-        headersOriginal: []
+        headersOriginal: [],
+        loading: true,
     }),
     mounted() {
       this.inicio();
@@ -153,6 +159,11 @@ export default {
           console.log(positions);
           this.headers = positions;
           console.log(this.datos);
+
+          setTimeout(() => {
+        // Aquí iría la lógica para cargar datos
+        this.loading = false;
+      }, 3000);
 
         })
         .catch(error => {});
