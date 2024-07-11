@@ -51,7 +51,11 @@ export default new Vuex.Store({
             fillcolor: "#FF00FFFF",
             weight: 3
         },
-        tabLeft: 0
+        tabLeft: 0,
+        snackbar:{
+            visible: false,
+            text: "",
+        }
     },
     getters: {
 

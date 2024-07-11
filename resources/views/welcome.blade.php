@@ -20,6 +20,9 @@
     </head>
     <body>
        <div id="app">
+            <div id="loading-overlay" style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: black; color: white;">
+            Cargando...
+        </div>
             <app></app>
        </div>
     </body>

@@ -136,6 +136,9 @@
 
             </l-control>
 
+
+           
+
             <l-circle-marker
                 v-for="item in singleTable"
                 :key="item.NodeID"
@@ -150,16 +153,23 @@
                 <l-popup :content="item.NodeName" />
             </l-circle-marker>
 
+          
+
             <!--<l-geo-json :geojson="$store.state.selectGraph.geo"> </l-geo-json>-->
 
             <l-geo-json
+           
       v-for="geoItem in $store.state.selectGraphs"
       :key="geoItem.id"
       :geojson="geoItem"
+      :optionsStyle="estilo"
     ></l-geo-json>
 
            
         </l-map>
+
+
+
     </div>
     
     
@@ -167,6 +177,7 @@
 </template>
 
 <script>
+import sidebar from './grafos.vue';
 import {
     LMap,
     LTileLayer,
@@ -246,7 +257,8 @@ export default {
         LGeoJson,
         LCircleMarker,
         LPolyline,
-        LControl
+        LControl,
+        sidebar
     },
     props: ["lugares", "singleTable"],
     data() {
@@ -277,11 +289,19 @@ export default {
                 closePopupOnClick: false,
                 doubleClickZoom: "center"
             },
+            verCapas:false,
             geojson2: null,
             chkTooltip: true,
             geojsonLayer: null,
             markerObjects: null,
             crs: swissCrs,
+            estilo: {
+                weight: 2,
+                color: "red",
+                opacity: 1,
+                fillColor: "white",
+                fillOpacity: 0.5
+            },
             mapa: {
                 infoMapa: {
                     centro: { lat: "20.0853643565", long: "-98.76998" },

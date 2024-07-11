@@ -1,6 +1,6 @@
 <template>
     <div>
-      <NodeNetwork v-if="loading" />
+     
       <barizq :info="proyecto" :singleTable="singleTable"></barizq>
 
       <barder :info="proyecto"></barder>
@@ -78,7 +78,7 @@ import distance from "./distance.vue";
 import edges from "./edges.vue";
 import nodes from "./nodes.vue";
 import adiacencia from "./adiacencia.vue";
-import NodeNetwork from './network_animation.vue';
+
 export default {
     name: "",
     props: [],
@@ -112,6 +112,13 @@ export default {
     },
     methods: {
       inicio(){
+
+        const overlay = document.getElementById('loading-overlay');
+      if (overlay) {
+        overlay.style.display = 'true';
+      }
+
+
         var id = this.$route.params.id;
         axios
         .get("/projects/info/" + id)

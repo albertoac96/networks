@@ -86,7 +86,10 @@ export default {
        
     },
     created() {
-
+        const overlay = document.getElementById('loading-overlay');
+      if (overlay) {
+        overlay.style.display = 'none';
+      }
     },
     beforeMount() {
 
@@ -101,7 +104,13 @@ export default {
         toggleGrafo(grafo, event){
             console.log("ENTRE A TOGGLE");
             console.log(grafo);
-            var contenido = JSON.parse(grafo.cContenido);
+
+            if(grafo.netType == "vd" || grafo.netType == "dt"){
+                var contenido = grafo.cContenido;
+            } else {
+                var contenido = JSON.parse(grafo.cContenido);
+            }
+    
                 console.log(contenido);
                 console.log(this.$store.state.grafos);
             if(event === true){
@@ -115,8 +124,16 @@ export default {
             console.log(this.$store.state.selectGraphs);
         },
         verInfo(grafo){
-            var contenido = JSON.parse(grafo.cContenido);
+            if(grafo.netType == "vd" || grafo.netType == "dt"){
+                var contenido = grafo.cContenido;
+            } else {
+                var contenido = JSON.parse(grafo.cContenido);
+            }
+            console.log("ENTRE A VER INFO");
+            console.log(grafo);
+           
             var netType = contenido.netType;
+           
             var distFunction = contenido.distFunction;
             switch (netType) {
                 case "vd":
