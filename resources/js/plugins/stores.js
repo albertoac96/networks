@@ -5,10 +5,11 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
+        drawer: false,
         grafos: [],
         menu:{
             drawer: true,
-            drawerR: true
+            mini: false
         },
         bandera:{
             newCapa: 0
@@ -29,32 +30,39 @@ export default new Vuex.Store({
         iNewCarpeta: 0,
         reset: 0,
         resetRel: 0,
-        headers: [
-            { text: 'id', value: 'id' }, 
-            { text: 'Capa', value: 'capa' },
-            { text: 'Placename', align: 'start', value: 'Placename', },
-            { text: 'Lat', value: 'X' }, 
-            { text: 'Long', value: 'Y' }, 
-            { text: 'CveCarta', value: 'Cve_Carta' }
-        ],
+        
         rutaPublic: "/",
         selectGraph: [],
         selectGraphs: [],
+        selectedItems: [],
         idGrafo: null,
         info: null,
         infoProyecto: null,
         singleTable: [],
         meanControl: null,
         stylePuntos:{
-            radio: 5,
-            color: "#FF00FFFF",
-            fillcolor: "#FF00FFFF",
+            radio: 11,
+            color: "#FFFFFF",
+            fillcolor: "#131313",
             weight: 3
         },
         tabLeft: 0,
         snackbar:{
             visible: false,
             text: "",
+        },
+        headers: {
+            dataOriginal: [],
+            singleTable: ["node_id", "node_name", "node_x", "node_y", "control_value", "relative_assymetry"],
+            edges: [],
+            adjacencyList: []
+        },
+        formatedData: {
+            edges: null,
+            adjacencyList: null,
+            dataOriginal: null,
+            singleTable: null,
+            distanceMatrix: null
         }
     },
     getters: {

@@ -149,7 +149,17 @@
                 :fillOpacity="1"
                 :weight="$store.state.stylePuntos.weight"
             >
-                <l-tooltip :options="tooltip">{{ item.NodeID }}</l-tooltip>
+                <l-tooltip v-show="chkTooltip" :options="tooltip">{{ item.NodeID }}</l-tooltip>
+                <l-popup :content="item.NodeName" />
+            </l-circle-marker>
+
+            <l-circle-marker
+                v-for="item in this.$store.state.selectedItems"
+                :key="item.NodeID + 100"
+                :lat-lng="getCoords(item.NodeX, item.NodeY)"
+                :radius="5"
+                :color="item.color"
+            >
                 <l-popup :content="item.NodeName" />
             </l-circle-marker>
 
@@ -275,7 +285,7 @@ export default {
                 basemap: 0,
             },
             tooltip: {
-                permanent: true,
+                permanent: false,
                 sticky: false,
                 className: "leaflet-tooltip leaflet-tooltip-css",
                 interactive: true
@@ -291,13 +301,13 @@ export default {
             },
             verCapas:false,
             geojson2: null,
-            chkTooltip: true,
+            chkTooltip: false,
             geojsonLayer: null,
             markerObjects: null,
             crs: swissCrs,
             estilo: {
                 weight: 2,
-                color: "red",
+                color: "white",
                 opacity: 1,
                 fillColor: "white",
                 fillOpacity: 0.5
@@ -318,7 +328,15 @@ export default {
                             nombre: "ESRI",
                             atribution: "ESRI",
                             link:
-                                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png"
+                                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png",
+                            visible: false
+                        },
+                        "1": {
+                            nombre: "INEGI",
+                            atribution: "INEGI-Diego Jimenez",
+                            link:
+                                "https://dh.inah.gob.mx/inegi50k/{z}/{x}/{y}.png",
+                            visible: true
                         }
                     }
                 },
@@ -368,8 +386,8 @@ export default {
                 var centro = this.calculateCenter;
                 console.log(centro);
                 this.center = L.latLng(
-                    centro.y,
-                    centro.x
+                    parseFloat(centro.y),
+                    parseFloat(centro.x)
                 );
                 this.zoom = this.mapa.infoMapa.zoom.inicial;
             }
@@ -380,8 +398,8 @@ export default {
       const totalCoords = this.singleTable.length;
       console.log(this.singleTable);
       const sum = this.singleTable.reduce((acc, coord) => {
-        acc.x += coord.NodeX;
-        acc.y += coord.NodeY;
+        acc.x += parseFloat(coord.NodeX);
+        acc.y += parseFloat(coord.NodeY);
         return acc;
       }, { x: 0, y: 0 });
 
@@ -398,7 +416,7 @@ export default {
             this.minZoom = this.mapa.infoMapa.zoom.min;
         },
         getCoords(x, y) {
-            return L.latLng(y, x);
+            return L.latLng(parseFloat(y), parseFloat(x));
         },
         fnReCenter() {
             this.map.setView(

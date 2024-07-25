@@ -17,11 +17,11 @@ Auth::routes();
 Route::get('/', function () {
     $idUser = Auth::id();
     if($idUser == ""){
-        return view('auth.login');
+        return view('auth.loginnew');
     }
     return view('welcome');
     
-});
+})->name('inicio');
 
 Route::get('/acercade', function () {
    
@@ -43,6 +43,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/info/{id}', [App\Http\Controllers\proyectos\datosController::class, 'infoProyecto']);
         Route::get('/list', [App\Http\Controllers\proyectos\datosController::class, 'listProjects']);
         Route::post('/compute', [App\Http\Controllers\proyectos\datosController::class, 'ComputeGraph']);
+        Route::post('/download', [App\Http\Controllers\proyectos\datosController::class, 'DescargarTodo']);
 
         Route::post('/controlnode', [App\Http\Controllers\proyectos\grafosControl::class, 'CalculateNodesControl']);
 

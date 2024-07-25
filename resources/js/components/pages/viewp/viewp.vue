@@ -1,5 +1,18 @@
 <template>
     <div>
+
+      
+
+  <v-tooltip bottom style="z-index: 99999;">
+      <template v-slot:activator="{ on, attrs }">
+       
+        <button v-show="!$store.state.drawer" class="floating-button" @click="toggleDrawer" v-bind="attrs"
+        v-on="on">
+        <v-icon>mdi-layers</v-icon>
+  </button>
+      </template>
+      <span>View Layers</span>
+    </v-tooltip>
      
       <barizq :info="proyecto" :singleTable="singleTable"></barizq>
 
@@ -7,6 +20,9 @@
       
 
         <v-card>
+
+
+    
 
          
            
@@ -111,6 +127,9 @@ export default {
 
     },
     methods: {
+      toggleDrawer(){
+        this.$store.state.drawer = !this.$store.state.drawer;
+      },
       inicio(){
 
         const overlay = document.getElementById('loading-overlay');
@@ -131,10 +150,13 @@ export default {
         console.log(res.data);
           var headers = res.data.table.aHeaders;
          this.headersOriginal = headers;
+         this.$store.state.headers.dataOriginal = this.headersOriginal;
           var nodes = res.data.table.aNodes;
           this.datos = res.data.table.aTable;
           this.singleTable = res.data.table.aSingleTable;
           this.$store.state.singleTable = this.singleTable;
+         
+          this.$store.state.formatedData.dataOriginal = this.datos;
           //console.log(res.data.table.aTable);
           console.log('HEADERS')
           console.log(headers);
@@ -165,6 +187,7 @@ export default {
 
           console.log(positions);
           this.headers = positions;
+         
           console.log(this.datos);
 
           setTimeout(() => {
@@ -179,3 +202,25 @@ export default {
     }
 }
 </script>
+
+<style>
+.floating-button {
+  position: fixed;
+  right: 0px; /* Mantén o ajusta la distancia desde el borde derecho */
+  top: 300px; /* Posición a 50px por debajo del límite superior */
+  z-index: 99999; /* Asegúrate de que el botón esté sobre otros elementos */
+  padding: 15px;
+  background-color: #CFD8DC; /* Color de fondo azul, puedes cambiarlo según tu diseño */
+  border: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Sombra para destacar el botón */
+  cursor: pointer;
+  color: white; /* Cambia el color del texto/icono a blanco */
+}
+
+.floating-button img {
+  width: 24px; /* Ajusta esto según el tamaño del icono deseado */
+  height: auto;
+  color: white;
+}
+
+</style>

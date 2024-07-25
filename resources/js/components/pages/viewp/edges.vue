@@ -4,20 +4,17 @@
             <button @click="exportAsExcel">Export Excel</button>
 
             <vue-excel-editor
-                v-model="$store.state.selectGraph.EdgesList"
+                v-model="this.$store.state.formatedData.edges"
                 width="100%"
                 readonly
                 disable-panel-filter
                 disable-panel-setting
                 ref="grid"
             >
-                <vue-excel-column
-                    v-for="item in headers"
-                    :key="item.index"
-                    :field="item.index"
-                    :label="item.index"
-                    type="string"
-                />
+                <vue-excel-column field="node_id" label="Node ID" />
+                <vue-excel-column field="node_name" label="Node Name" />
+                <vue-excel-column field="edge_id" label="Edge ID"/>
+                <vue-excel-column field="edge_name" label="Edge Name" />
             </vue-excel-editor>
         </v-card-text>
     </v-card>
@@ -29,7 +26,8 @@ export default {
     props: ["datos"],
     components: {},
     data: () => ({
-        headers: []
+        headers: [],
+        data: []
     }),
     mounted() {
         this.inicio();
@@ -37,8 +35,9 @@ export default {
     created() {},
     beforeMount() {},
     watch: {
-        "this.$store.state.selectGraph"() {
+        "$store.state.selectGraph"() {
             console.log("entra a ver el select graph");
+           
         }
     },
     computed: {},
@@ -52,7 +51,8 @@ export default {
             const exportSelectedOnly = false;
             const filename = "test";
             this.$refs.grid.exportTable(format, exportSelectedOnly, filename);
-        }
+        },
+        
     }
 };
 </script>

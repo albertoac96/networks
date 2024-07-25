@@ -259,8 +259,8 @@ export default {
                 netType: "vd",
                 cContenido: {
                     EdgesList: [],
-                    PbDrawCurrentEdge: false,
-                    adjacencyList: [],
+                    PbDrawCurrentEdge: null,
+                    adjacencyList: this.calculateAdjacencyList(delaunay, points),
                     distFunction: "e",
                     geo: this.creaGeoJSON(polygons),
                     netType: "vd",
@@ -269,12 +269,13 @@ export default {
                 },
                 active: true
             };
-
+            JSON.stringify(final.cContenido);
             this.$store.state.grafos.push(final);
+            console.log(this.$store.state.grafos);
             var total = this.$store.state.grafos.length;
             this.$store.state.selectGraphs.push(final.cContenido.geo);
 
-            this.calculateAdjacencyList(delaunay, points);
+            
 
             console.log(this.$store.state.selectGraphs);
             this.$store.state.tabLeft = 0;
@@ -425,6 +426,7 @@ export default {
                 }
             var LcResp = neighbors;
             console.log(LcResp);
+            return LcResp;
         },
         calculateEdges(voronoi) {
             const edges = [];

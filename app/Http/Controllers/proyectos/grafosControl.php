@@ -19,7 +19,7 @@ class grafosControl extends Controller
         //return $request;
         $PaDataSource = $this->traerDataSource($request->info["idProject"]);
         $max_nodes = count($PaDataSource); // Stores total number of nodes
-       
+      
         $grafoInfo = Grafo::where('idGrafo', $request->idGrafo)->get();
         $grafoInfo = json_decode($grafoInfo[0]->cContenido);
        // return $grafoInfo->adjacencyList;
@@ -67,7 +67,26 @@ class grafosControl extends Controller
 
         $relativeAssymmetry = $this->calculateRelativeAsymmetry($grafoInfo);
 
-        
+        Grafo::where('idGrafo', $request->idGrafo)->update([
+            'ControlValues' => $controlValuesArray,
+            'RelativeAssy' => $relativeAssymmetry,
+            'MeanControl' => $meanControl
+        ]);
+
+        $nodes = $grafoInfo->nodes;
+        $i = 0;
+        foreach($nodes as $node){
+            $node->ControlValue = $controlValuesArray[$i];
+            $node->RelativeAssymetry = $relativeAssymmetry[$i];
+            $i++;
+        }
+        $grafoInfo->nodes = $nodes;
+
+        Grafo::where('idGrafo', $request->idGrafo)->update([
+            'cContenido' => json_encode($grafoInfo),
+        ]);
+
+
 
         //return $relativeAssymmetry;
 

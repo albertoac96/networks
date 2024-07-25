@@ -2,7 +2,7 @@
 
 
 <v-system-bar 
-  height="30"
+  height="40"
   color="grey darken-3"
 
   app
@@ -11,59 +11,29 @@
 
     
 
-<v-menu offset-y>
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          color="primary"
-          dark
-          dense
-          v-bind="attrs"
-          v-on="on"
-        >
-          Project
-        </v-btn>
-      </template>
-      <v-list dense>
-        <v-list-item>
-          <v-list-item-title>About</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <router-link to="/">
-            <v-list-item-title>Return to my projects</v-list-item-title>
-          </router-link>
-        </v-list-item>
-      </v-list>
-    </v-menu>
 
-    
-<v-menu offset-y>
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          color="primary"
-          dark
-          dense
-          v-bind="attrs"
-          v-on="on"
-        >
-          Functions
-        </v-btn>
-      </template>
-      <v-list flat>
-        <v-list-item-group >        
-        <v-list-item>
-          <v-list-item-title @click="compute()">Compute Graph</v-list-item-title>
-        </v-list-item>
-      </v-list-item-group>
-
-      </v-list>
-    </v-menu>
-        
 
 <v-spacer></v-spacer>
+
+<v-breadcrumbs :items="items" divider="-">
+    <template v-slot:item="{ item }">
+      <v-breadcrumbs-item :to="item.to" style="color: white; text-decoration: underline;">
+        {{ item.text }}
+      </v-breadcrumbs-item>
+    </template>
+  </v-breadcrumbs>
+
 
 <menuPerfil></menuPerfil>
 
 <full></full>
+
+<v-btn v-if="$store.state.drawer" icon @click="$store.state.drawer = false">
+      <v-icon>mdi-palette</v-icon>
+    </v-btn>
+    <v-btn v-else icon @click="$store.state.drawer = true">
+      <v-icon>mdi-palette</v-icon>
+    </v-btn>
  
 <compute @close="dlgCompute=false" :dlgCompute="dlgCompute"></compute>
 </v-system-bar>
@@ -84,7 +54,7 @@ export default {
         {
           text: 'Mis proyectos',
           disabled: false,
-          href: '/',
+          to: '/',
         }
       
       ],
@@ -125,4 +95,10 @@ export default {
 .white-text {
   color: white !important; /* Usa !important para asegurarte de que los estilos se apliquen */
 }
+.custom-breadcrumbs .v-breadcrumbs__item,
+.custom-breadcrumbs .v-breadcrumbs__link {
+  color: white;  /* Cambia el color a blanco */
+  text-decoration: underline;  /* Asegura que el texto esté subrayado */
+}
+
 </style>

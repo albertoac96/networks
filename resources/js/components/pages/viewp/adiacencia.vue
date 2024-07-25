@@ -1,24 +1,24 @@
 <template>
     <v-card>
         <v-card-text>
-
+           
 
             <vue-excel-editor
-               v-model="jsondata"
+                v-model="$store.state.formatedData.adjacencyList"
+                :columns="$store.state.headers.adjacencyList"
+                :cell-class="cellClass"
                 width="100%"
                 readonly
                 disable-panel-filter
                 disable-panel-setting
                 ref="grid"
+                @select="onSelect"
             >
-            <vue-excel-column field="node" label="Node" type="string" readonly width="200px"/>
-            <vue-excel-column field="relaciones" label="Relations" type="string" width="500px" />
+               
             </vue-excel-editor>
         </v-card-text>
-        {{ $store.state.selectGraph.adjacencyList }}
+      
     </v-card>
-
-   
 </template>
 <script>
 export default {
@@ -27,60 +27,73 @@ export default {
     components: {},
     data: () => ({
         jsondata: [],
-        encabezados: []
+        encabezados: [],
+        maxRelaciones: 0
     }),
 
     mounted() {},
     created() {},
     beforeMount() {},
     watch: {
-        "$store.state.selectGraph.adjacencyList"(){
-             // Transformar los datos originales al formato adecuado para vue-excel-editor
-            //this.jsondata = this.$store.state.selectGraph.adjacencyList;
-            this.jsondata = [];
-            console.log("INICIE");
-            console.log(this.$store.state.selectGraph.adjacencyList.length);
-            console.log(this.$store.state.singleTable);
-            for(var i=0; this.$store.state.selectGraph.adjacencyList.length>i; i++){
-                console.log(this.$store.state.singleTable[i]);
-                var titulo = this.$store.state.singleTable[i].NodeID + "-" + this.$store.state.singleTable[i].NodeName;
-                this.encabezados.push(titulo);
-                console.log(this.$store.state.selectGraph.adjacencyList[i]);
-                var elementos = "";
-                for(var u=0; this.$store.state.selectGraph.adjacencyList[i].length>u; u++){
-                    console.log(this.$store.state.selectGraph.adjacencyList[i][u][0]);
-                    const index = this.$store.state.singleTable.findIndex(item => item.NodeID == this.$store.state.selectGraph.adjacencyList[i][u][0]+1);
-                    console.log(index);
-                    if(index == -1){
-                        console.log("NO EXISTE");
-                    } else {
-                        console.log(this.$store.state.singleTable[index]);
-                        
-                        elementos = elementos + this.$store.state.singleTable[index].NodeID + "-" + this.$store.state.singleTable[index].NodeName + "; ";
-                        
-                        
-                        
-                        
-                    }
-                }
-
-                var elemento = { node: this.$store.state.singleTable[i].NodeID + "-" + this.$store.state.singleTable[i].NodeName, 
-                        relaciones: elementos };
-                        console.log(elemento);
-                        this.jsondata.push(elemento);
-                
-            }
-
-            console.log(this.encabezados);
-            console.log(this.jsondata);
+        "$store.state.selectGraph.adjacencyList"() {
+         
+           
             
         }
     },
     computed: {
-        formattedData() {
-           
-    }
+       
+            preparedDataForExcel() {
+               
+            }
+       
     },
-    methods: {}
+    methods: {
+       
+
+        cellClass({ row, column }) {
+      if (column === 'Node') {
+        return 'bold-column';
+      }
+      return '';
+    },
+    onSelect (selectedRows) {
+      console.log(selectedRows)
+      const index = selectedRows[0];
+      const obj = this.jsondata[index];
+
+      const result = [];
+        // Extraer el número del Node
+        const nodeNumber = obj.Node.split('-')[0];
+        result.push(nodeNumber);
+
+        // Extraer los números de las relaciones
+        Object.keys(obj).forEach(key => {
+            if (key.startsWith('Relation') && obj[key]) {
+            const relationNumber = obj[key].split('-')[0];
+            result.push(relationNumber);
+            }
+        });
+        console.log(result);
+
+        var seleccionados =  result.map((result, index) => {
+            const node = this.$store.state.singleTable.find(node => node.NodeID === result);
+            if (node) {
+                const color = index === 0 ? 'red' : 'yellow';
+                return { ...node, color: color };
+            }
+        }).filter(node => node !== undefined); // Filtrar los nodos que no se encontraron
+
+        console.log(seleccionados);
+        this.$store.state.selectedItems = seleccionados;
+    }
+
+    }
 };
 </script>
+
+<style scoped>
+.bold-column {
+  font-weight: bold;
+}
+</style>

@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\proyectos;
 
+use Illuminate\Support\Facades\App;
+
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+
 use App\Http\Controllers\Controller;
 use App\Models\Grafo;
 use Illuminate\Http\Request;
@@ -12,11 +17,19 @@ use App\Models\Proyecto;
 use App\Models\Table;
 
 use Maatwebsite\Excel\Excel;
+use App\Exports\MultiSheetExport;
+use Illuminate\Support\Facades\Storage;
 
 use Ballen\Cartographer\Core\LatLong;
 use Ballen\Cartographer\LineString;
 
 use App\Models\clases\EdgesList;
+
+use App\Http\Controllers\proyectos\grafosControl;
+
+use Symfony\Component\HttpFoundation\Response;
+
+use ZipArchive;
 
 
 class datosController extends Controller
@@ -345,6 +358,22 @@ class datosController extends Controller
             'cContenido' => json_encode($data),
         ]);
 
+
+        $grafoController = App::make(grafosControl::class);
+         // Construir el nuevo request con los datos necesarios
+         $data = [
+            'info' => [
+                'idProject' => $request->input('info')['idProject']
+            ],
+            'idGrafo' => $grafo->idGrafo
+        ];
+
+        $newRequest = new Request($data);
+
+        $grafoController->CalculateNodesControl($newRequest);
+        
+
+        
         $grafo = Grafo::where('idGrafo', $grafo->idGrafo)->get();
 
         return response()->json([
@@ -448,6 +477,8 @@ class datosController extends Controller
         return $dataCombine;
     }
 
+    
+
     private function EuclideanDistance($x1, $y1, $x2, $y2) {
         $distance = sqrt(pow($x1 - $x2, 2) + pow($y1 - $y2, 2));
         return $distance;
@@ -501,6 +532,117 @@ class datosController extends Controller
 
     function GetOutwardEdges($adjacencyList, $index) {
         return new \SplDoublyLinkedList($adjacencyList[$index]);
+    }
+
+
+    function DescargarTodo(Request $request){
+
+        $jsondata = $request->json()->all();
+
+      
+
+        $contenido = json_decode($request->grafo['cContenido']);
+        $date = new \DateTime($jsondata['grafo']['created_at']);
+        $name = $date->format('d-m-Y')."_".$jsondata['grafo']['idProyecto']."_".$jsondata['grafo']['idGrafo']."_".$contenido->netType."_".$contenido->nBeta."_".$contenido->nSigma;
+
+       
+      
+        
+        $data = [
+            "adjacencyList" => [
+                "headers" => $jsondata['headers']['adjacencyList'],
+                "data" => $jsondata['formatedData']['adjacencyList']
+            ],
+            "Edges" => [
+                "headers" => $jsondata['headers']['edges'],
+                "data" => $jsondata['formatedData']['edges']
+            ],
+            "dataOriginal" => [
+                "headers" => $jsondata['headers']['dataOriginal'],
+                "data" => $jsondata['formatedData']['dataOriginal']
+            ],
+            "singleTable" => [
+                "headers" => $jsondata['headers']['singleTable'],
+                "data" => $jsondata['formatedData']['singleTable']
+            ]
+        ];
+
+        $adjacency = [
+            "adjacencyListOriginal" => $jsondata['formatedData']['distanceMatrix']
+        ];
+
+        $folderPath = 'exports_graphs'.DIRECTORY_SEPARATOR.$jsondata['grafo']['idGrafo'];
+
+        // Crear la carpeta si no existe
+        if (!Storage::disk('public')->exists($folderPath)) {
+            Storage::disk('public')->makeDirectory($folderPath);
+        }
+
+        $fileName = $name.'.xlsx';
+
+        $filePath = $folderPath . DIRECTORY_SEPARATOR . $fileName;
+
+        $export = new MultiSheetExport($data, $adjacency);
+        $export->store($filePath, 'public');
+
+        $geojson = $jsondata['grafo']['cContenido'];
+        $geojson = json_decode($geojson);
+        $geoJsonData = json_decode(json_encode($geojson), true);
+        //return $geoJsonData['geo'];
+        // Guardar el archivo GeoJSON
+        $geoJsonFileName = $name.'.geojson';
+        $geoJsonFilePath = $folderPath . DIRECTORY_SEPARATOR . $geoJsonFileName;
+        $geoJsonData = json_encode($geoJsonData['geo']);
+        Storage::disk('public')->put($geoJsonFilePath, $geoJsonData);
+
+        // Comando para convertir el archivo
+        $command = [
+            'ogr2ogr',
+            '-f', 'ESRI Shapefile', // Formato de salida
+            storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$folderPath. DIRECTORY_SEPARATOR .'shape'), // Carpeta de salida para archivos Shapefile
+            storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR . $geoJsonFilePath),  // Archivo GeoJSON de entrada
+        ];
+
+        $outputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$folderPath. DIRECTORY_SEPARATOR .'shape');
+        $inputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$geoJsonFilePath);
+
+        echo $outputPath;
+        echo "<br>";
+        echo $inputPath;
+
+        $command = "ogr2ogr -f 'ESRI Shapefile' $outputPath $inputPath";
+
+        $output = shell_exec($command);
+
+        // Crear el archivo ZIP
+        $zipFileName = $name. '.zip';
+        $zipFilePath = $folderPath . '/' . $zipFileName;
+
+        $zip = new ZipArchive;
+        if ($zip->open(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $zipFilePath), ZipArchive::CREATE) === TRUE) {
+            $zip->addFile(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $filePath), $fileName);
+            $zip->addFile(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $geoJsonFilePath), $geoJsonFileName);
+            $zip->close();
+        } else {
+            throw new \Exception('No se pudo crear el archivo ZIP');
+        }
+
+        // Retornar el archivo ZIP para descargar
+        //return response()->download(storage_path('app/public/' . $zipFilePath));
+
+        // Crear la respuesta de descarga
+        $response = response()->download(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR . $zipFilePath));
+
+        // Añadir un header personalizado con el nombre del archivo
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $name . '"');
+
+        
+
+        return $response;
+
+
+        return $data;
+        
     }
 
 
