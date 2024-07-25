@@ -603,14 +603,14 @@ class datosController extends Controller
             storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR . $geoJsonFilePath),  // Archivo GeoJSON de entrada
         ];
 
-        $outputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$folderPath. DIRECTORY_SEPARATOR .'shape');
+        $outputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$folderPath. DIRECTORY_SEPARATOR .'shape_file' . DIRECTORY_SEPARATOR . $name .'shp');
         $inputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$geoJsonFilePath);
 
         echo $outputPath;
         echo "<br>";
         echo $inputPath;
 
-        $command = "ogr2ogr -f 'ESRI Shapefile' $outputPath $inputPath";
+        $command = "ogr2ogr -f 'ESRI Shapefile' -t_src EPSG:4326 $outputPath $inputPath";
 
         $output = shell_exec($command);
 
