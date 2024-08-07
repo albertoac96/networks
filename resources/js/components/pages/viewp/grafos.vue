@@ -3,6 +3,7 @@
 
         <h4>Graphs Layers</h4>
         <v-subheader>Total: {{ $store.state.grafos.length }}</v-subheader>
+        <v-btn @click="agrupar()">Agrupar grafos</v-btn>
 
       
         <v-list
@@ -28,7 +29,7 @@
             </v-list-item-action>
 
             <v-list-item-content @click="verGrafo(grafo)"  >
-              <v-list-item-title>{{ grafo.cNombre }}</v-list-item-title>
+              <v-list-item-title>{{ nombre(grafo) }}</v-list-item-title>
               <v-subheader>{{verInfo(grafo)}}</v-subheader>
             </v-list-item-content>
       
@@ -82,7 +83,8 @@ export default {
     data: () => ({
         grafos:[],
         settings: [],
-        highlighted: null
+        highlighted: null,
+        selectedGrafos: []
     }),
     mounted() {
        
@@ -119,11 +121,16 @@ export default {
                 console.log(this.$store.state.grafos);
             if(event === true){
                 this.$store.state.selectGraphs.push(contenido.geo);
+                this.selectedGrafos.push(grafo);
             } else {
+
                 const index = this.$store.state.selectGraphs.findIndex(item => item.id == contenido.geo.id);
                 console.log(contenido.geo.id);
                 console.log(index);
                 this.$store.state.selectGraphs.splice(index, 1);
+
+                const index2 = this.selectedGrafos.findIndex(item => item.idGrafo == grafo.idGrafo);
+                this.selectedGrafos.splice(index2, 1);
             }
             console.log(this.$store.state.selectGraphs);
         },
@@ -137,10 +144,32 @@ export default {
                 var contenido = JSON.parse(grafo.cContenido);
             }
           
+            var netType = this.verTipo(contenido.netType);
            
-            var netType = contenido.netType;
-           
-            var distFunction = contenido.distFunction;
+            var distFunction = this.verDistancia(contenido.distFunction);
+            
+            var LcResp = netType + " - (" + distFunction + ")" + "| Beta = " + contenido.nBeta + " ; Sigma = " + contenido.nSigma ;
+            return LcResp;
+
+        },
+        verDistancia(distFunction){
+            switch (distFunction) {
+                case "hk":
+                    distFunction = "Haversine in Kms";
+                    break;
+                case "hm":
+                    distFunction = "Haversine in Milles";
+                    break;
+                case "e":
+                    distFunction = "Euclidean";
+                    break;
+                default:
+                    distFunction = "Unknown Dist Function";
+                    break;
+            }
+            return distFunction;
+        },
+        verTipo(netType){
             switch (netType) {
                 case "vd":
                     netType = "Voronoi Diagram";
@@ -164,23 +193,7 @@ export default {
                     netType = "Unknown Network Type";
                     break;
             }
-            switch (distFunction) {
-                case "hk":
-                    distFunction = "Haversine in Kms";
-                    break;
-                case "hm":
-                    distFunction = "Haversine in Milles";
-                    break;
-                case "e":
-                    distFunction = "Euclidean";
-                    break;
-                default:
-                    distFunction = "Unknown Dist Function";
-                    break;
-            }
-            var LcResp = netType + " - (" + distFunction + ")" + "| Beta = " + contenido.nBeta + " ; Sigma = " + contenido.nSigma ;
-            return LcResp;
-
+            return netType;
         },
         verGrafo(grafo){
             
@@ -206,7 +219,115 @@ export default {
             console.log(this.$store.state.headers);
             console.log(this.$store.state.formatedData);
         },
+        nombre(grafo){
+            if(grafo.netType == "vd" || grafo.netType == "dt"){
+                var contenido = grafo.cContenido;
+            } else {
+                var contenido = JSON.parse(grafo.cContenido);
+            }
 
+            // Fecha en formato ISO 8601
+            let fechaISO = grafo.created_at;
+
+            // Crear un objeto Date a partir de la cadena ISO
+            let fecha = new Date(fechaISO);
+
+            // Obtener el día, el mes y el año
+            let dia = fecha.getUTCDate();
+            let mes = fecha.getUTCMonth() + 1; // Los meses en JavaScript van de 0 a 11
+            let anio = fecha.getUTCFullYear();
+
+            // Formatear la fecha en el formato deseado
+            let fechaFormateada = `${dia}-${mes}-${anio}`;
+
+            var netType = this.verTipo(contenido.netType);
+           
+            var distFunction = this.verDistancia(contenido.distFunction);
+
+            var beta = contenido.nBeta;
+
+            var LcResp = fechaFormateada+'_'+grafo.idProyecto+'_'+grafo.idGrafo+'_'+contenido.netType+'_'+beta;
+            
+            return LcResp;
+        },
+        agrupar() {
+    console.log(this.selectedGrafos);
+    var tablaFinal = [];
+    var nTotal = 0;
+    
+    // Primer bucle: inicializa tablaFinal y agrega los valores a los arrays correspondientes
+    for (var i = 0; i < this.selectedGrafos.length; i++) {
+      var grafo = this.selectedGrafos[i];
+      var contenido = JSON.parse(grafo.cContenido);
+      grafo.conteNew = contenido;
+      var nodes = contenido.nodes;
+      var grafoNombre = this.nombre(grafo);
+        console.log(nodes);
+      var controlValueSum = this.promedio(nodes, 'ControlValue');
+      console.log(controlValueSum);
+        var RelativeAssymetrySum = this.promedio(nodes, 'RelativeAssymetry');
+        console.log(RelativeAssymetrySum);
+      
+      nTotal = nodes.length;
+      for (var u = 0; u < nodes.length; u++) {
+        if (!tablaFinal[u]) {
+          tablaFinal[u] = {
+            "NodeID": nodes[u].NodeID,
+            "NodeName": nodes[u].NodeName,
+            "NodeX": nodes[u].NodeX,
+            "NodeY": nodes[u].NodeY,
+          };
+        }
+        
+        if (!tablaFinal[u]["ControlValues_"+grafoNombre]) {
+          tablaFinal[u]["ControlValues_"+grafoNombre] = controlValueSum;
+        }
+        if (!tablaFinal[u]["RelativeAssymetries_"+grafoNombre]) {
+          tablaFinal[u]["RelativeAssymetries_"+grafoNombre] = RelativeAssymetrySum;
+        }
+
+       
+      }
+    }
+
+ 
+
+    console.log("HOLA");
+    console.log(tablaFinal);
+
+    // Convertir tablaFinal a CSV y descargar
+    this.downloadCSV(tablaFinal);
+  },
+  promedio(items, tipo){
+            console.log('entre a promedio '+tipo);
+            console.log(items);
+            let nSum = 0;
+            for(var i=0; i<items.length; i++){
+                nSum += items[i][tipo]; 
+                //console.log(items[i][tipo]);
+                
+            }
+            return (nSum / items.length);
+        },
+  downloadCSV(data) {
+    const replacer = (key, value) => value === null ? '' : value; // replace null values with empty strings
+    const header = Object.keys(data[0]);
+    const csv = [
+      header.join(','), // header row first
+      ...data.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','))
+    ].join('\r\n');
+
+    // Crear un blob de CSV y un enlace para descargarlo
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'nodes_data.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  },
         creaEncabezadosAdiacencia(maxRelaciones){
             var encabezados = ['Node']; // El primer encabezado es el nodo en sí
             // Determinar el número máximo de relaciones
