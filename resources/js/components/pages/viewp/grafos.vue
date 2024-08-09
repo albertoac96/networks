@@ -251,53 +251,63 @@ export default {
             return LcResp;
         },
         agrupar() {
-    console.log(this.selectedGrafos);
-    var tablaFinal = [];
-    var nTotal = 0;
-    
-    // Primer bucle: inicializa tablaFinal y agrega los valores a los arrays correspondientes
-    for (var i = 0; i < this.selectedGrafos.length; i++) {
-      var grafo = this.selectedGrafos[i];
-      var contenido = JSON.parse(grafo.cContenido);
-      grafo.conteNew = contenido;
-      var nodes = contenido.nodes;
-      var grafoNombre = this.nombre(grafo);
-        console.log(nodes);
-      var controlValueSum = this.promedio(nodes, 'ControlValue');
-      console.log(controlValueSum);
-        var RelativeAssymetrySum = this.promedio(nodes, 'RelativeAssymetry');
-        console.log(RelativeAssymetrySum);
-      
-      nTotal = nodes.length;
-      for (var u = 0; u < nodes.length; u++) {
-        if (!tablaFinal[u]) {
-          tablaFinal[u] = {
-            "NodeID": nodes[u].NodeID,
-            "NodeName": nodes[u].NodeName,
-            "NodeX": nodes[u].NodeX,
-            "NodeY": nodes[u].NodeY,
-          };
-        }
-        
-        if (!tablaFinal[u]["ControlValues_"+grafoNombre]) {
-          tablaFinal[u]["ControlValues_"+grafoNombre] = controlValueSum;
-        }
-        if (!tablaFinal[u]["RelativeAssymetries_"+grafoNombre]) {
-          tablaFinal[u]["RelativeAssymetries_"+grafoNombre] = RelativeAssymetrySum;
-        }
+  console.log(this.selectedGrafos);
+  var tablaFinal = [];
 
-       
+  for (var i = 0; i < this.selectedGrafos.length; i++) {
+    var grafo = this.selectedGrafos[i];
+    var contenido = JSON.parse(grafo.cContenido);
+    grafo.conteNew = contenido;
+    var netType = contenido.netType;
+    var beta = contenido.nBeta;
+    var nameGrafo = grafo.idGrafo + "_" + beta + "_" + netType;
+
+    var nodes = contenido.nodes;
+    var grafoNombre = this.nombre(grafo);
+    console.log(nodes);
+    
+    var control = "control_" + nameGrafo;
+    var ra = "ra_" + nameGrafo;
+    
+    var controlValueSum = 0;
+    var RelativeAssymetrySum = 0;
+
+    for (var u = 0; u < nodes.length; u++) {
+      if (!tablaFinal[u]) {
+        tablaFinal[u] = {
+          "NodeID": nodes[u].NodeID,
+          "Node Name": nodes[u].NodeName,
+          "X": nodes[u].NodeX,
+          "Y": nodes[u].NodeY,
+          [control]: nodes[u].ControlValue,
+          [ra]: nodes[u].RelativeAssymetry,
+        };
+      } else {
+        tablaFinal[u][control] = nodes[u].ControlValue;
+        tablaFinal[u][ra] = nodes[u].RelativeAssymetry;
       }
+
+      controlValueSum += nodes[u].ControlValue;
+      RelativeAssymetrySum += nodes[u].RelativeAssymetry;
     }
 
- 
+    var nTotal = nodes.length;
+    tablaFinal[nTotal] = {
+      "NodeID": "Promedio",
+      "Node Name": "",
+      "X": "",
+      "Y": "",
+      [control]: controlValueSum / nodes.length,
+      [ra]: RelativeAssymetrySum / nodes.length,
+    };
+  }
 
-    console.log("HOLA");
-    console.log(tablaFinal);
+  console.log("HOLA");
+  console.log(tablaFinal);
 
-    // Convertir tablaFinal a CSV y descargar
-    this.downloadCSV(tablaFinal);
-  },
+  // Convertir tablaFinal a CSV y descargar
+  this.downloadCSV(tablaFinal);
+},
   promedio(items, tipo){
             console.log('entre a promedio '+tipo);
             console.log(items);
