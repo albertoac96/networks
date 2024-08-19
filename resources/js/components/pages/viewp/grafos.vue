@@ -272,38 +272,50 @@ export default {
     var controlValueSum = 0;
     var RelativeAssymetrySum = 0;
 
-    for (var u = 0; u < nodes.length; u++) {
-      if (!tablaFinal[u]) {
-        tablaFinal[u] = {
-          "NodeID": nodes[u].NodeID,
-          "Node Name": nodes[u].NodeName,
-          "X": nodes[u].NodeX,
-          "Y": nodes[u].NodeY,
-          [control]: nodes[u].ControlValue,
-          [ra]: nodes[u].RelativeAssymetry,
-        };
+    for (var u = 0; u <= nodes.length; u++) {
+      if(u < nodes.length){
+            if (!tablaFinal[u]) {
+            tablaFinal[u] = {
+            "NodeID": nodes[u].NodeID,
+            "Node Name": nodes[u].NodeName,
+            "X": nodes[u].NodeX,
+            "Y": nodes[u].NodeY,
+            [control]: nodes[u].ControlValue,
+            [ra]: nodes[u].RelativeAssymetry,
+            };
+        } else {
+            tablaFinal[u][control] = nodes[u].ControlValue;
+            tablaFinal[u][ra] = nodes[u].RelativeAssymetry;
+        }
+        controlValueSum += nodes[u].ControlValue;
+        RelativeAssymetrySum += nodes[u].RelativeAssymetry;
       } else {
-        tablaFinal[u][control] = nodes[u].ControlValue;
-        tablaFinal[u][ra] = nodes[u].RelativeAssymetry;
+        if(u === nodes.length){
+            console.log("grafo-"+grafo.idGrafo)
+            tablaFinal[u] = {
+                "NodeID": "Promedio",
+                "Node Name": "",
+                "X": "",
+                "Y": "",
+                [control]: controlValueSum / nodes.length,
+                [ra]: RelativeAssymetrySum / nodes.length,
+            };
+        }
+         console.log(tablaFinal);
       }
 
-      controlValueSum += nodes[u].ControlValue;
-      RelativeAssymetrySum += nodes[u].RelativeAssymetry;
+     
+
+     
+
+      
     }
 
-    var nTotal = nodes.length;
-    tablaFinal[nTotal] = {
-      "NodeID": "Promedio",
-      "Node Name": "",
-      "X": "",
-      "Y": "",
-      [control]: controlValueSum / nodes.length,
-      [ra]: RelativeAssymetrySum / nodes.length,
-    };
+   
   }
 
   console.log("HOLA");
-  console.log(tablaFinal);
+ 
 
   // Convertir tablaFinal a CSV y descargar
   this.downloadCSV(tablaFinal);
