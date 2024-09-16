@@ -1,5 +1,7 @@
-Part of the Created the Relative Neighbourhood Method of Spatial Analysis (RN-Method) project
-Creator(s): Diego Jimenez-Badillo and Luis Alberto Alcántara-Chávez
+Part of the Created the Relative Neighbourhood Method of Spatial Analysis (RN-Method) project<br>
+<b>Creator(s):</b> [Diego Jimenez-Badillo](https://dh.inah.gob.mx/diego_jimenez) and [Luis Alberto Alcántara-Chávez](https://orcid.org/0000-0002-5983-9842)<br>
+<b>Dataset available at:</b> [RNG Repository](https://dh.inah.gob.mx/rng_repository)<br>
+<b>Demo:</b> [RNG Demo](https://shapingarchaeology.inah.gob.mx/)
 
 ## About
 
@@ -7,8 +9,8 @@ Responding to the need of historians and archaeologists to assess different scen
 
 ## License
 
-Attribution-NonCommercial-NoDerivatives 4.0 International
-This license enables reusers to copy and distribute the material in any medium or format in unadapted form only, for noncommercial purposes only, and only so long as attribution is given to the creator. CC BY-NC-ND includes the following elements:
-BY: credit must be given to the creator.
-NC: Only noncommercial uses of the work are permitted.
+[Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/)<br>
+This license enables reusers to copy and distribute the material in any medium or format in unadapted form only, for noncommercial purposes only, and only so long as attribution is given to the creator. CC BY-NC-ND includes the following elements:<br>
+BY: credit must be given to the creator.<br>
+NC: Only noncommercial uses of the work are permitted.<br>
 ND: No derivatives or adaptations of the work are permitted.
