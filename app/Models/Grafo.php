@@ -15,6 +15,8 @@ class Grafo extends Model
         'idProyecto',
         'ControlValues',
         'MeanControl',
-        'RelativeAssy'
+        'RelativeAssy',
+        'iPublic',
+        'cEstatus'
     ];
 }
