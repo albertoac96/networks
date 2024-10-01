@@ -17,6 +17,8 @@ class Grafo extends Model
         'MeanControl',
         'RelativeAssy',
         'iPublic',
-        'cEstatus'
+        'cEstatus',
+        'headers',
+        'formatedData'
     ];
 }

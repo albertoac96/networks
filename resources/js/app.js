@@ -115,6 +115,8 @@ const router = new VueRouter({
 
 Vue.component('app', require('./components/master/aplicacion.vue').default);
 
+Vue.component('repo', require('./components/pages/repo.vue').default);
+
 
 
 const app = new Vue({

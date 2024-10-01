@@ -29,13 +29,20 @@ Route::get('/acercade', function () {
     
 })->name('acercade');
 
+Route::get('/repo', function () {
+   
+    return view('repo');
+    
+})->name('repo');
 
 
-
+Route::get('/prueba', [App\Http\Controllers\proyectos\coleccionController::class, 'colPrueba']);
+Route::get('/grafos/{id}', [App\Http\Controllers\proyectos\coleccionController::class, 'verGrafo']);
+Route::post('/download', [App\Http\Controllers\proyectos\coleccionController::class, 'descargar']);
 
 
 Route::middleware(['auth'])->group(function () {
-
+    Route::post('/updategrafos', [App\Http\Controllers\proyectos\grafosControl::class, 'updateGrafos']);
   Route::group(['prefix' => 'projects'], function(){
         Route::post('/check', [App\Http\Controllers\proyectos\datosController::class, 'convertJSON']);
         Route::post('/new', [App\Http\Controllers\proyectos\datosController::class, 'newProject']);
@@ -48,6 +55,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/controlnode', [App\Http\Controllers\proyectos\grafosControl::class, 'CalculateNodesControl']);
 
         Route::get('/vergrafos/{id}', [App\Http\Controllers\proyectos\grafosControl::class, 'traeGrafos']);
+    });
+
+    Route::group(['prefix' => 'cols'], function(){
+        Route::get('/list', [App\Http\Controllers\proyectos\coleccionController::class, 'listColeccion']);
+        Route::post('/add', [App\Http\Controllers\proyectos\coleccionController::class, 'addColeccion']);
+
+        
+      
     });
 
 

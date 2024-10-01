@@ -247,6 +247,17 @@ class grafosControl extends Controller
         return $aGrafos;
     }
 
+
+    public function updateGrafos(Request $request){
+        //return json_encode($request['headers']);
+        
+        Grafo::where('idGrafo', $request->grafo['idGrafo'])->update([
+            'headers' => json_encode($request['headers']),
+            'formatedData' => json_encode($request['formatedData'])
+        ]);
+        return "OK";
+    }
+
     
     
 }

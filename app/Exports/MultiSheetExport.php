@@ -26,7 +26,7 @@ class MultiSheetExport implements WithMultipleSheets
             $sheets[] = new SingleSheetExport($sheetName, $sheetContent['headers'], $sheetContent['data']);
         }
 
-        $sheets[] = new AdjacencyListExport('distanceMatrix', $this->adjacencyList);
+        $sheets[] = new AdjacencyListExport('Distance_Matrix', $this->adjacencyList);
 
         return $sheets;
     }

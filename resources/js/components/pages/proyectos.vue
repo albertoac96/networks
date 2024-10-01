@@ -1,8 +1,8 @@
 <template>
-
+<div>
     <v-card>
         <v-card-title>
-            Projects
+            Datasets
             <v-divider
                 class="mx-4"
                 inset
@@ -48,15 +48,17 @@
         </v-card-text>
 
 </v-card>
-    
+
+<cols></cols>
+</div>
     </template>
     <script>
-
+import cols from './colecciones.vue';
     export default {
         name: "",
         props: [],
         components:{
-           
+           cols
         },
         data: () => ({
             headers: [
