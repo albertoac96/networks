@@ -110,32 +110,31 @@ class coleccionController extends Controller
     {
         // Paso 1: Consulta para obtener los proyectos
         $projects = DB::table('projects')
-            ->whereIn('idProject', [23,26,30,34,35])
+            ->whereIn('idProject', [23, 26, 30, 34, 35])
             ->get();
 
-           $filteredGraphs = $this->verGrafo($projects[0]->idProject);
+        $filteredGraphs = $this->verGrafo($projects[0]->idProject);
 
-            $projects[0]->grafos = $filteredGraphs;
-              
-           
-           
-        
-            return $projects;
+        $projects[0]->grafos = $filteredGraphs;
 
-        
+
+
+
+        return $projects;
     }
 
-    public function verGrafo($idProyecto){
+    public function verGrafo($idProyecto)
+    {
         $graphs = DB::table('grafos')
-        ->where('idProyecto', $idProyecto)
-        ->get();
+            ->where('idProyecto', $idProyecto)
+            ->get();
 
-        
+
         $filteredGraphs = [];
         foreach ($graphs as $graph) {
             // Suponiendo que cContenido es un JSON y quieres extraer ciertos valores
             $contenidoArray = json_decode($graph->cContenido, true); // Decodificar cContenido
-            
+
             // Extrae solo los valores que necesitas de cContenido
             $selectedValues = [
                 'distFunction' => $contenidoArray['distFunction'] ?? null, // Cambia 'campo1' por el nombre del campo que necesites
@@ -151,132 +150,123 @@ class coleccionController extends Controller
                 'cContenido' => $selectedValues, // Guardar los valores seleccionados
             ];
         }
-          
-       
+
+
         return $filteredGraphs;
     }
 
-    public function descargar(Request $request){
+    public function descargar(Request $request)
+    {
         $PcTipo = $request->tipo;
         $PoItem = $request->item;
         $idGrafo = $PoItem["id"];
 
         $grafo = Grafo::where('idGrafo', $idGrafo)->get();
-        
+
         $cGrafo = $grafo[0];
         $cGrafo->cContenido = json_decode($cGrafo->cContenido, true);
 
-        
 
-        if($PcTipo == "csv"){
+
+        if ($PcTipo == "csv") {
             return $cGrafo->cContenido["nodes"];
         }
-        if($PcTipo == "json"){
+        if ($PcTipo == "json") {
             return $cGrafo->cContenido["geo"];
         }
-        if($PcTipo == "shape"){
-            
+        if ($PcTipo == "shape") {
+
             return $this->descargarShape($cGrafo);
         }
-        if($PcTipo == "xlsx"){
-            
-            return $this->descargarExcel($cGrafo);
+        if ($PcTipo == "xlsx") {
+
+            $filePath = $this->descargarExcel($cGrafo);
+            return Storage::download('public' . DIRECTORY_SEPARATOR . $filePath);
         }
-        if($PcTipo == "zip"){
-            
+        if ($PcTipo == "zip") {
+
             return $this->descargarZip($cGrafo);
         }
-
     }
 
-    public function descargarShape($grafo){
-        $folderPath = 'exports_graphs'.DIRECTORY_SEPARATOR.$grafo['idGrafo'];
+    public function descargarShape($grafo)
+    {
+        $folderPath = 'exports_graphs' . DIRECTORY_SEPARATOR . $grafo['idGrafo'];
         $contenido = $grafo->cContenido;
         $date = new \DateTime($grafo['created_at']);
-        $name = $contenido['netType']."_".$contenido['nBeta']."_".$date->format('Y-m-d');
-
-       
-
+        $name = $contenido['netType'] . "_" . $contenido['nBeta'] . "_" . $date->format('Y-m-d');
+    
         // Crear la carpeta si no existe
         if (!Storage::disk('public')->exists($folderPath)) {
             Storage::disk('public')->makeDirectory($folderPath);
         }
-
-        $fileName = $name.'.xlsx';
-
-        $filePath = $folderPath . DIRECTORY_SEPARATOR . $fileName;
-
-        
-
-        $geojson = $contenido['geo'];
-        //return $geojson;
-        //$geojson = json_decode($geojson);
-        //$geoJsonData = json_decode(json_encode($geojson), true);
-
-        //return $geoJsonData;
-        //return $geoJsonData['geo'];
-        // Guardar el archivo GeoJSON
-        $geoJsonFileName = $name.'.geojson';
-        $geoJsonFilePath = $folderPath . DIRECTORY_SEPARATOR . $geoJsonFileName;
-        $geoJsonData = json_encode($geojson);
-        Storage::disk('public')->put($geoJsonFilePath, $geoJsonData);
-
-        // Comando para convertir el archivo
-        $command = [
-            'ogr2ogr',
-            '-f', 'ESRI Shapefile', // Formato de salida
-            storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$folderPath. DIRECTORY_SEPARATOR .'shape'), // Carpeta de salida para archivos Shapefile
-            storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR . $geoJsonFilePath),  // Archivo GeoJSON de entrada
-        ];
-
-        $outputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$folderPath. DIRECTORY_SEPARATOR .'shape_file' . DIRECTORY_SEPARATOR . $name .'.shp');
-        $inputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$geoJsonFilePath);
-
-        $command = "ogr2ogr -f 'ESRI Shapefile' -t_src EPSG:4326 $outputPath $inputPath";
-
-        $output = shell_exec($command);
-
-       
-
-        // Crear el archivo ZIP
-        $zipFileName = $name. '_shp.zip';
-        $zipFilePath = $folderPath . DIRECTORY_SEPARATOR . $zipFileName;
-
+    
+        // Guardar GeoJSON y obtener ruta de nombre para conversión
+        $geoJsonFilePath = $this->guardarGeoJSON($name, $folderPath, $contenido['geo']);
+    
+        // Convertir GeoJSON a Shapefile
+        $shapeFolder = $this->convertToShp($folderPath, $name, $geoJsonFilePath);
+    
+        // Ruta del ZIP
+        $zipFileName = $name . '_shp';
+        $zipFilePath = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $folderPath . DIRECTORY_SEPARATOR . $zipFileName);
+    
         $zip = new ZipArchive;
-        if ($zip->open(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $zipFilePath), ZipArchive::CREATE) === TRUE) {
-            $zip->close();
+    
+        // Abre o crea el archivo ZIP
+        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            // Rutas de archivos shapefile
+            $shapeFiles = [
+                'shx' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".shx"),
+                'shp' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".shp"),
+                'dbf' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".dbf"),
+                'prj' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".prj"),
+            ];
+    
+            foreach ($shapeFiles as $extension => $filePath) {
+                if (!file_exists($filePath)) {
+                    throw new \Exception('El archivo ' . basename($filePath) . ' no existe en la ruta: ' . $filePath);
+                } else {
+                    // Depuración: imprimir la ruta del archivo
+                    echo "Agregando archivo: " . $filePath . "\n"; // Imprime la ruta
+                    $zip->addFile($filePath, $name . '.' . $extension);
+                }
+            }
+    
+            // Cerrar el archivo ZIP
+            if (!$zip->close()) {
+                throw new \Exception('Error al cerrar el archivo ZIP');
+            }
         } else {
-            throw new \Exception('No se pudo crear el archivo ZIP');
+            throw new \Exception('No se pudo abrir o crear el archivo ZIP: ' . $zipFilePath);
         }
-
-        // Retornar el archivo ZIP para descargar
-        //return response()->download(storage_path('app/public/' . $zipFilePath));
-
+    
         // Crear la respuesta de descarga
-        $response = response()->download(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR . $zipFilePath));
-
-        // Añadir un header personalizado con el nombre del archivo
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . $name . '"');
-
-        
-
+        $response = response()->download($zipFilePath);
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $zipFileName . '"');
+    
         return $response;
     }
+    
+    
+    
 
-    public function descargarExcel($grafo){
 
-        $folderPath = 'exports_graphs'.DIRECTORY_SEPARATOR.$grafo['idGrafo'];
+    public function descargarExcel($grafo)
+    {
+
+        $folderPath = 'exports_graphs' . DIRECTORY_SEPARATOR . $grafo['idGrafo'];
         $contenido = $grafo->cContenido;
         $date = new \DateTime($grafo['created_at']);
-        $name = $contenido['netType']."_".$contenido['nBeta']."_".$date->format('Y-m-d');
+        $name = $contenido['netType'] . "_" . $contenido['nBeta'] . "_" . $date->format('Y-m-d');
 
-        $fileName = $name.'.xlsx';
+        $fileName = $name . '.xlsx';
 
         $filePath = $folderPath . DIRECTORY_SEPARATOR . $fileName;
 
         $idProject = $contenido['infoProyecto']['idProject'];
 
-        $datos = DB::select('select * from grafos where idProyecto ='.$idProject);
+        $datos = DB::select('select * from grafos where idProyecto =' . $idProject);
         $datos = $datos[0];
         //jsondata = json_decode($datos->aHeaders);
         //return $datos;
@@ -301,7 +291,7 @@ class coleccionController extends Controller
                 "headers" => $headers->edges,
                 "data" => $formatedData->edges
             ],
-            
+
         ];
 
         $adjacency = [
@@ -313,132 +303,127 @@ class coleccionController extends Controller
             Storage::disk('public')->makeDirectory($folderPath);
         }
 
-       
+
 
         $export = new MultiSheetExport($data, $adjacency);
         $export->store($filePath, 'public');
 
-        return Storage::download('public'.DIRECTORY_SEPARATOR.$filePath);
+        return $filePath;
 
-           
+        //return Storage::download('public' . DIRECTORY_SEPARATOR . $filePath);
     }
 
-
-    public function descargarZip($grafo){
-       
-
-
-        $folderPath = 'exports_graphs'.DIRECTORY_SEPARATOR.$grafo['idGrafo'];
-        $contenido = $grafo->cContenido;
-        $date = new \DateTime($grafo['created_at']);
-        $name = $contenido['netType']."_".$contenido['nBeta']."_".$date->format('Y-m-d');
-
-        $fileName = $name.'.xlsx';
-
-        $filePath = $folderPath . DIRECTORY_SEPARATOR . $fileName;
-
-        $idProject = $contenido['infoProyecto']['idProject'];
-
-        $datos = DB::select('select * from grafos where idProyecto ='.$idProject);
-        $datos = $datos[0];
-        //jsondata = json_decode($datos->aHeaders);
-        //return $datos;
-        $headers = json_decode($datos->headers);
-        $formatedData = json_decode($datos->formatedData);
-        //return $headers->adjacencyList;
-
-        $data = [
-            "Original_Data" => [
-                "headers" => $headers->dataOriginal,
-                "data" => $formatedData->dataOriginal
-            ],
-            "Nodes" => [
-                "headers" => $headers->singleTable,
-                "data" => $formatedData->singleTable
-            ],
-            "Adjacency_List" => [
-                "headers" => $headers->adjacencyList,
-                "data" => $formatedData->adjacencyList
-            ],
-            "Edges" => [
-                "headers" => $headers->edges,
-                "data" => $formatedData->edges
-            ],
-            
-        ];
-
-        $adjacency = [
-            "adjacencyListOriginal" => $formatedData->distanceMatrix
-        ];
-
-        // Crear la carpeta si no existe
-        if (!Storage::disk('public')->exists($folderPath)) {
-            Storage::disk('public')->makeDirectory($folderPath);
-        }
-
-        $fileName = $name.'.xlsx';
-
-        $filePath = $folderPath . DIRECTORY_SEPARATOR . $fileName;
-
-        $export = new MultiSheetExport($data, $adjacency);
-        $export->store($filePath, 'public');
-
-        $geojson = $contenido['geo'];
-        //return $geojson;
-        //$geojson = json_decode($geojson);
-        //$geoJsonData = json_decode(json_encode($geojson), true);
-
-        //return $geoJsonData;
-        //return $geoJsonData['geo'];
+    public function guardarGeoJSON($name, $folderPath, $geo){
         // Guardar el archivo GeoJSON
-        $geoJsonFileName = $name.'.geojson';
+        $geoJsonFileName = $name . '.geojson';
         $geoJsonFilePath = $folderPath . DIRECTORY_SEPARATOR . $geoJsonFileName;
-        $geoJsonData = json_encode($geojson);
+        $geoJsonData = json_encode($geo);
         Storage::disk('public')->put($geoJsonFilePath, $geoJsonData);
+        return $geoJsonFilePath;
+    }
 
-        // Comando para convertir el archivo
-        $command = [
-            'ogr2ogr',
-            '-f', 'ESRI Shapefile', // Formato de salida
-            storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$folderPath. DIRECTORY_SEPARATOR .'shape'), // Carpeta de salida para archivos Shapefile
-            storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR . $geoJsonFilePath),  // Archivo GeoJSON de entrada
+    public function convertToShp($folderPath, $name, $geoJsonFilePath){
+         // Definir la carpeta de salida para archivos Shapefile
+         $shapeFolderPath = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $folderPath . DIRECTORY_SEPARATOR . 'shape_file');
+    
+         // Asegúrate de que la carpeta para los archivos shapefile exista
+         if (!file_exists($shapeFolderPath)) {
+             mkdir($shapeFolderPath, 0777, true); // Crear la carpeta de salida si no existe
+         }
+     
+         // Definir la ruta de salida (solo el directorio, sin extensión)
+         $outputPath = $shapeFolderPath; // Sin la extensión
+     
+         // Ejecutar el comando ogr2ogr
+         $inputPath = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $geoJsonFilePath);
+         $command = "ogr2ogr -f 'ESRI Shapefile' -t_srs EPSG:4326 $outputPath $inputPath"; // Redirigir errores
+         $output = shell_exec($command);
+         return $outputPath;
+    }
+
+
+    public function descargarZip($grafo)
+{
+    $folderPath = 'exports_graphs' . DIRECTORY_SEPARATOR . $grafo['idGrafo'];
+    $contenido = $grafo->cContenido;
+    $date = new \DateTime($grafo['created_at']);
+    $name = $contenido['netType'] . "_" . $contenido['nBeta'] . "_" . $date->format('Y-m-d');
+
+   
+    // Crear la carpeta si no existe
+    if (!Storage::disk('public')->exists($folderPath)) {
+        Storage::disk('public')->makeDirectory($folderPath);
+    }
+
+    
+
+    $filePathExcel = $this->descargarExcel($grafo);
+
+    // Guardar GeoJSON y obtener ruta de nombre para conversión
+    $geoJsonFilePath = $this->guardarGeoJSON($name, $folderPath, $contenido['geo']);
+    
+    // Convertir GeoJSON a Shapefile
+    $shapeFolder = $this->convertToShp($folderPath, $name, $geoJsonFilePath);
+    
+
+    
+    // Ruta del ZIP
+    $zipFileName = $name;
+    $zipFilePath = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $folderPath . DIRECTORY_SEPARATOR . $zipFileName . ".zip");
+
+    $zip = new ZipArchive;
+
+    // Abre o crea el archivo ZIP
+    if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
+
+
+        $zip->addFile(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR .$filePathExcel), $name . '.xlsx');
+         $zip->addFile(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR .$geoJsonFilePath), $name . '.geojson');
+
+         // Verificar y agregar el archivo Excel
+        //if (file_exists(storage_path($filePathExcel))) {
+            //$zip->addFile(storage_path($filePathExcel), $name . '.xlsx');
+        //} else {
+            //throw new \Exception('El archivo Excel ' . $name . '.xlsx no existe en la ruta: ' . storage_path($filePathExcel));
+        //}
+
+         // Crear una carpeta dentro del ZIP
+         $zip->addEmptyDir('shape'); // Crea una carpeta principal
+
+         
+
+        // Rutas de archivos shapefile
+        $shapeFiles = [
+            'shx' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".shx"),
+            'shp' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".shp"),
+            'dbf' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".dbf"),
+            'prj' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".prj"),
         ];
 
-        $outputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$folderPath. DIRECTORY_SEPARATOR .'shape_file' . DIRECTORY_SEPARATOR . $name .'.shp');
-        $inputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$geoJsonFilePath);
-
-        echo $outputPath;
-        echo "<br>";
-        echo $inputPath;
-
-        $command = "ogr2ogr -f 'ESRI Shapefile' -t_src EPSG:4326 $outputPath $inputPath";
-
-        $output = shell_exec($command);
-
-        // Crear el archivo ZIP
-        $zipFileName = $name. '.zip';
-        $zipFilePath = $folderPath . '/' . $zipFileName;
-
-        $zip = new ZipArchive;
-        if ($zip->open(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $zipFilePath), ZipArchive::CREATE) === TRUE) {
-            $zip->addFile(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $filePath), $fileName);
-            $zip->addFile(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $geoJsonFilePath), $geoJsonFileName);
-            $zip->close();
-        } else {
-            throw new \Exception('No se pudo crear el archivo ZIP');
+        foreach ($shapeFiles as $extension => $filePath) {
+            if (!file_exists($filePath)) {
+                throw new \Exception('El archivo ' . basename($filePath) . ' no existe en la ruta: ' . $filePath);
+            } else {
+                // Depuración: imprimir la ruta del archivo
+                echo "Agregando archivo: " . $filePath . "\n"; // Imprime la ruta
+                $zip->addFile($filePath, 'shape/' . $name . '.' . $extension);
+            }
         }
 
-        // Retornar el archivo ZIP para descargar
-        //return response()->download(storage_path('app/public/' . $zipFilePath));
-
-        // Crear la respuesta de descarga
-        $response = response()->download(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR . $zipFilePath));
-
-        // Añadir un header personalizado con el nombre del archivo
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . $name . '"');
-
-        
-
-        return $response;
+        // Cerrar el archivo ZIP
+        if (!$zip->close()) {
+            throw new \Exception('Error al cerrar el archivo ZIP');
+        }
+    } else {
+        throw new \Exception('No se pudo abrir o crear el archivo ZIP: ' . $zipFilePath);
     }
+
+    // Crear la respuesta de descarga
+    $response = response()->download($zipFilePath);
+    $response->headers->set('Content-Disposition', 'attachment; filename="' . $zipFileName . '"');
+
+    return $response;
+}
+
+    
 }
