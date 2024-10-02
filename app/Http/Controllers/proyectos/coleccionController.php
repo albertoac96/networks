@@ -20,6 +20,8 @@ use App\Exports\MultiSheetExport;
 
 use ZipArchive;
 
+use STS\ZipStream\Facades\Zip;
+
 class coleccionController extends Controller
 {
     public function listColeccion()
@@ -240,6 +242,14 @@ class coleccionController extends Controller
         } else {
             throw new \Exception('No se pudo abrir o crear el archivo ZIP: ' . $zipFilePath);
         }
+
+
+        Zip::create("package.zip", [
+            $shapeFolder . DIRECTORY_SEPARATOR . $name . ".shx" =>  $name . ".shx",
+            $shapeFolder . DIRECTORY_SEPARATOR . $name . ".shp" =>  $name . ".shp",
+            $shapeFolder . DIRECTORY_SEPARATOR . $name . ".dbf" =>  $name . ".dbf",
+            $shapeFolder . DIRECTORY_SEPARATOR . $name . ".prj" =>  $name . ".prj",
+        ])->saveTo(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $folderPath));
     
         // Crear la respuesta de descarga
         $response = response()->download($zipFilePath);
