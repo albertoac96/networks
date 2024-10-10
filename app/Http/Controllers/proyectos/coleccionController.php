@@ -18,9 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Excel;
 use App\Exports\MultiSheetExport;
 
-use ZipArchive;
 
-use STS\ZipStream\Facades\Zip;
 
 class coleccionController extends Controller
 {
@@ -213,10 +211,10 @@ class coleccionController extends Controller
         $zipFileName = $name . '_shp';
         $zipFilePath = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $folderPath . DIRECTORY_SEPARATOR . $zipFileName);
     
-        $zip = new ZipArchive;
+        $zip = new \ZipArchive;
     
         // Abre o crea el archivo ZIP
-        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+        if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
             // Rutas de archivos shapefile
             $shapeFiles = [
                 'shx' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".shx"),
@@ -244,12 +242,7 @@ class coleccionController extends Controller
         }
 
 
-        Zip::create("package.zip", [
-            $shapeFolder . DIRECTORY_SEPARATOR . $name . ".shx" =>  $name . ".shx",
-            $shapeFolder . DIRECTORY_SEPARATOR . $name . ".shp" =>  $name . ".shp",
-            $shapeFolder . DIRECTORY_SEPARATOR . $name . ".dbf" =>  $name . ".dbf",
-            $shapeFolder . DIRECTORY_SEPARATOR . $name . ".prj" =>  $name . ".prj",
-        ])->saveTo(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $folderPath));
+       
     
         // Crear la respuesta de descarga
         $response = response()->download($zipFilePath);
@@ -381,10 +374,10 @@ class coleccionController extends Controller
     $zipFileName = $name;
     $zipFilePath = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $folderPath . DIRECTORY_SEPARATOR . $zipFileName . ".zip");
 
-    $zip = new ZipArchive;
+    $zip = new \ZipArchive;
 
     // Abre o crea el archivo ZIP
-    if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
+    if ($zip->open($zipFilePath, \ZipArchive::CREATE) === TRUE) {
 
 
         $zip->addFile(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR .$filePathExcel), $name . '.xlsx');
