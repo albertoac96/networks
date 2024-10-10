@@ -43,8 +43,11 @@ Route::post('/download', [App\Http\Controllers\proyectos\coleccionController::cl
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/updategrafos', [App\Http\Controllers\proyectos\grafosControl::class, 'updateGrafos']);
-  Route::group(['prefix' => 'projects'], function(){
+  
+  
+    Route::group(['prefix' => 'projects'], function(){
         Route::post('/check', [App\Http\Controllers\proyectos\datosController::class, 'convertJSON']);
+        Route::post('/update', [App\Http\Controllers\proyectos\datosController::class, 'updateProyecto']);
         Route::post('/new', [App\Http\Controllers\proyectos\datosController::class, 'newProject']);
         Route::post('/archivoup', [App\Http\Controllers\proyectos\datosController::class, 'subirArchivo']);
         Route::get('/info/{id}', [App\Http\Controllers\proyectos\datosController::class, 'infoProyecto']);

@@ -1,14 +1,35 @@
 <template>
     <v-card flat>
         <v-card-text>
-            <!--<h5>Project Info</h5>
-            <p> <b>Name:</b> {{ info.cName }}<br>
-            <b>Description:</b> {{ info.cDescription }}<br>
+            <h5>Project Info</h5>
+            <v-row>
+        <v-col
+          cols="12"
+          
+        >
+          <v-text-field
+            v-model="info.cName"
+            label="Name"
+            @change="cambio(info.cName, 'cName')"
+          ></v-text-field>
+        </v-col>
+        <v-col
+        cols="12"
+      
+      >
+        <v-textarea
+        v-model="info.cDescription"
+          label="Description"
+          @change="cambio(info.cDescription, 'cDescription')"
+        ></v-textarea>
+      </v-col>
+        </v-row>
+            
             <b>Created at:</b> {{ this.cFechaYMDlarga(info.created_at) }} <br>
             <b>Updated at:</b> {{ this.cFechaYMDlarga(info.updated_at) }} <br>
             <b>Original name: </b> {{ info.cDocName }} <br>
             <b>Sheet: </b> {{ info.cSheet }} <br>
-        </p>-->
+        </p>
 
             <v-col cols="12">
                 <v-btn color="error" @click="fnNodeControl()"
@@ -175,6 +196,17 @@ export default {
     },
     computed: {},
     methods: {
+        cambio(valor, campo){
+            axios
+                .post("/projects/update", { valor: valor, campo: campo, id: this.info.idProject })
+                .then(res => {
+                    console.log("OK");
+                    this.$store.state.snackbar.text = "The graph has been updated.";
+                    this.$store.state.snackbar.visible = true;
+
+                })
+                .catch(error => {});
+        },
         fnProccess() {
             this.cg.info = this.info;
             this.cg.singleTable = this.singleTable;

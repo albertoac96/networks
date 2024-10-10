@@ -39,6 +39,18 @@ class datosController extends Controller
         $LcResp = Proyecto::where('idUsrAlta', Auth::id())->get();
         return $LcResp;
     }
+
+    public function updateProyecto(Request $request){
+        $id = $request->id;
+        $campo = $request->campo;
+        $valor = $request->valor;
+
+        Proyecto::where('idProject', $id)->update([
+            $campo => $valor,
+        ]);
+
+        return "OK";
+    }
     
     public function convertJSON(Request $request)
     {
