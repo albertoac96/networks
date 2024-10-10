@@ -19,6 +19,11 @@ use Maatwebsite\Excel\Excel;
 use App\Exports\MultiSheetExport;
 
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> f83cf16f32fbc6ac37e8e6405e2586b86185e830
 
 class coleccionController extends Controller
 {
@@ -242,7 +247,11 @@ class coleccionController extends Controller
         }
 
 
+<<<<<<< HEAD
        
+=======
+        
+>>>>>>> f83cf16f32fbc6ac37e8e6405e2586b86185e830
     
         // Crear la respuesta de descarga
         $response = response()->download($zipFilePath);
