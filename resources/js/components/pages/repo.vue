@@ -15,7 +15,7 @@
 
                 <v-tab-item v-for="(tab, index) in datasets" :key="index">
                     <v-card-text>
-                        <p class="font-weight-medium">{{ tab.cDescription }}</p>
+                        <p class="font-weight-medium" v-html="tab.cDescription"></p>
                         <v-data-table
                             :headers="headers"
                             :items="tab.grafos"
