@@ -177,6 +177,8 @@ class datosController extends Controller
         $LcResp["crs"]["type"]=$crsname;
         $LcResp["crs"]["properties"]=array();
         $LcResp["crs"]["properties"]["name"]=$crsname;
+        $LcResp["properties"]["stroke-width"] = 4;
+        $LcResp["properties"]["stroke"] = sprintf('#%06X', mt_rand(0, 0xFFFFFF));
         $LcResp["features"]= array();
         return $LcResp;
     }

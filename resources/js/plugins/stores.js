@@ -5,7 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        drawer: false,
+        drawer: true,
         grafos: [],
         menu:{
             drawer: true,
@@ -46,6 +46,7 @@ export default new Vuex.Store({
             fillcolor: "#131313",
             weight: 3
         },
+        verEstilo: false,
         tabLeft: 0,
         snackbar:{
             visible: false,

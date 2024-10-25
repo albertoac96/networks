@@ -1,24 +1,25 @@
 <template>
     <v-card>
         <v-card-text>
-            <button @click="exportAsExcel">Export Excel</button>
+            <!--<button @click="exportAsExcel">Export Excel</button>
 
-            <p>Mean Control: {{ $store.state.meanControl }}</p>
+            <p>Mean Control: {{ $store.state.meanControl }}</p>-->
 
             <vue-excel-editor
                 v-model="$store.state.singleTable"
                 width="100%"
+                height="80%"
                 readonly
                 disable-panel-filter
                 disable-panel-setting
                 ref="grid"
             >
-            <vue-excel-column field="NodeID" label="ID" type="number" readonly />
-            <vue-excel-column field="NodeName" label="NodeName" type="string"  />
-            <vue-excel-column field="NodeX" label="NodeX" type="number"  />
-            <vue-excel-column field="NodeY" label="NodeY" type="number"  />
-            <vue-excel-column field="ControlValue" label="Control Value" type="number"  />
-            <vue-excel-column field="RelativeAssymetry" label="Relative Assymetry" type="number"  />
+            <vue-excel-column field="NodeID" label="ID" type="number" readonly autoFillWidth/>
+            <vue-excel-column field="NodeName" label="NodeName" type="string" autoFillWidth />
+            <vue-excel-column field="NodeX" label="NodeX" type="number" autoFillWidth />
+            <vue-excel-column field="NodeY" label="NodeY" type="number"  autoFillWidth/>
+            <vue-excel-column field="ControlValue" label="Control Value" type="number" autoFillWidth />
+            <vue-excel-column field="RelativeAssymetry" label="Relative Assymetry" type="number" autoFillWidth />
   
             </vue-excel-editor>
         </v-card-text>

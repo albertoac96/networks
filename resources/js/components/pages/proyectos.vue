@@ -1,32 +1,64 @@
 <template>
-<div>
-    <v-card>
-        <v-card-title>
-            Datasets
-            <v-divider
-                class="mx-4"
-                inset
-                vertical
-            ></v-divider>
-            <v-spacer></v-spacer>
-            <v-btn
-              color="primary"
-              dark
 
-              to="/newp"
+
+  
+    <v-card class="rounded-xl m-3">
+
+   
+
+
+        <v-card-title style="font-family: 'Nunito', sans-serif; font-weight: 700;" class="d-flex align-center">
+        
+         
+          <span>Datasets</span>
+          <v-divider class="mx-4" inset vertical dense></v-divider>
+      
+          
+            <v-spacer></v-spacer>
+
+            <div class="col-2 mt-4">
+                <v-text-field
+                v-model="search"
+                outlined
+                    dense
+                  color="#2B968A"
+                    label="Search"
+                ></v-text-field>
+              </div>
+          
+            <v-btn
+              color="#2B968A"
+              dark
+              dense
+              @click="addDataset()"
+              class="d-flex align-center rounded-lg"
             >
-              New
+            <img
+              src="storage/assets/p2_newproject.png"
+              alt="icon"
+              style="width: 20px; height: 20px; rounded"
+            />
+            <span class="ml-2">New dataset</span>
             </v-btn>
+         
         </v-card-title>
         <v-card-text>
+          <v-container style="width: 80%;">
             <v-data-table
+                fixed-header
+                height="65vh"
                 :headers="headers"
                 :items="desserts"
-                :items-per-page="5"
-                class="elevation-1  table-striped"
+                :search="search"
+                :items-per-page="-1"
+                hide-default-footer
+                item-class="custom-row"
+                item-key="idProject" 
+                class="elevation-1 table-striped"
                 @dblclick:row="viewItem"
-                
+              
             >
+
           
             <template v-slot:item.created_at="{ item }" >
                 
@@ -45,20 +77,22 @@
           
           
           </v-data-table>
+        </v-container>
         </v-card-text>
+
+       <agregardata :dialog="dialog" @cancel-dialog="dialog = false"></agregardata>
 
 </v-card>
 
-<cols></cols>
-</div>
+
     </template>
     <script>
-import cols from './colecciones.vue';
+import agregardata from './newp.vue';
     export default {
         name: "",
         props: [],
         components:{
-           cols
+          agregardata
         },
         data: () => ({
             headers: [
@@ -67,13 +101,17 @@ import cols from './colecciones.vue';
             align: 'start',
             sortable: false,
             value: 'cName',
+            class: 'my-header-style rounded-tl-lg mt-4 mb-4 dark'
           },
           
-          { text: 'Description', value: 'cDescription' },
-          { text: 'Created at', value: 'created_at' },
-          { text: 'Last modified', value: 'updated_at' },
+          { text: 'Description', value: 'cDescription', class: 'my-header-style mt-4 mb-4 dark', },
+          { text: 'Graphs', value: 'grafos_count', class: 'my-header-style mt-4 mb-4 dark', },
+          { text: 'Created at', value: 'created_at', class: 'my-header-style rounded-tr-lg mt-4 mb-4 dark', }
+      
         ],
-        desserts: []
+        desserts: [],
+        dialog: false,
+        search: ''
         }),
         mounted(){
             this.inicio();
@@ -104,7 +142,23 @@ import cols from './colecciones.vue';
             console.log(item);
             this.$store.state.info = item;
             this.$router.push('/verp/' + item.idProject);
+          },
+          addDataset(){
+            this.dialog = true;
           }
         }
     }
     </script>
+
+    <style>
+
+
+.my-header-style {
+  background: #43C2B4 !important;
+  text-align: center !important;
+  color: black !important;
+  font-size: 1em !important;
+  font-family: 'Microsoft Sans Serif', sans-serif !important;
+}
+
+  </style>

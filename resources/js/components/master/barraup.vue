@@ -4,36 +4,38 @@
 <v-system-bar 
   height="40"
   color="grey darken-3"
-
+  style="z-index: 20000;"
   app
   window
 >
 
-    
+<img
+              src="/storage/assets/p2_icon_small.png"
+              alt="icon"
+              style="width: 30px; height: 30px;"
+            />
+            <span class="ml-2" style="color: white; font-family: 'Maven Pro', sans-serif; font-weight: 700;">RNG Special Network Analysis</span>
 
 
 
-<v-spacer></v-spacer>
 
-<v-breadcrumbs :items="items" divider="-">
+<v-breadcrumbs :items="items" divider="-" class="breadcrumb-item">
     <template v-slot:item="{ item }">
-      <v-breadcrumbs-item :to="item.to" style="color: white; text-decoration: underline;">
-        {{ item.text }}
+      <v-breadcrumbs-item :to="item.to">
+        <span class="ml-2" style="color: white; font-family: 'Maven Pro', sans-serif; font-weight: 700;">{{ item.text }}</span>
       </v-breadcrumbs-item>
     </template>
   </v-breadcrumbs>
 
-
+  <v-spacer></v-spacer>
 <menuPerfil></menuPerfil>
 
-<full></full>
-
-<v-btn v-if="$store.state.drawer" icon @click="$store.state.drawer = false">
+<!--<v-btn v-if="$store.state.drawer" icon @click="$store.state.drawer = false">
       <v-icon>mdi-palette</v-icon>
     </v-btn>
     <v-btn v-else icon @click="$store.state.drawer = true">
       <v-icon>mdi-palette</v-icon>
-    </v-btn>
+    </v-btn>-->
  
 <compute @close="dlgCompute=false" :dlgCompute="dlgCompute"></compute>
 </v-system-bar>
@@ -52,7 +54,7 @@ export default {
   data: () => ({
       items: [
         {
-          text: 'Mis proyectos',
+          text: 'Go to Datasets',
           disabled: false,
           to: '/',
         }
@@ -99,6 +101,13 @@ export default {
 .custom-breadcrumbs .v-breadcrumbs__link {
   color: white;  /* Cambia el color a blanco */
   text-decoration: underline;  /* Asegura que el texto esté subrayado */
+}
+
+.breadcrumb-item {
+  color: white !important; 
+  font-family: 'Maven Pro', sans-serif; 
+  font-weight: 700; 
+  text-decoration: underline;
 }
 
 </style>

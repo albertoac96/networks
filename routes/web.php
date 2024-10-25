@@ -23,6 +23,8 @@ Route::get('/', function () {
     
 })->name('inicio');
 
+
+
 Route::get('/acercade', function () {
    
     return view('acerca');

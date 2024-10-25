@@ -1,9 +1,7 @@
 <template>
-    <div>
+    <div> 
 
-      
-
-  <v-tooltip bottom style="z-index: 99999;">
+      <v-tooltip bottom style="z-index: 10;">
       <template v-slot:activator="{ on, attrs }">
        
         <button v-show="!$store.state.drawer" class="floating-button" @click="toggleDrawer" v-bind="attrs"
@@ -17,21 +15,18 @@
       <barizq :info="proyecto" :singleTable="singleTable"></barizq>
 
       <barder :info="proyecto"></barder>
+
       
-
-        <v-card>
-
-
-    
-
-         
-           
   <v-tabs
   v-model="tab"
     fixed-tabs
     background-color="indigo"
     dark
   >
+
+ 
+
+
     <v-tab>
       Map View
     </v-tab>
@@ -50,7 +45,7 @@
     <v-tab>
       Distance Matrix
     </v-tab>
-  </v-tabs>
+  
 
   <v-tabs-items v-model="tab">
       <v-tab-item>
@@ -80,10 +75,14 @@
 
     </v-tabs-items>
 
-        </v-card>
 
+  
+      
 
-    </div>
+  </v-tabs>
+
+</div>
+  
 </template>
 <script>
 import barder from "./barder.vue";

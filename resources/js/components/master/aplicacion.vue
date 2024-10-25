@@ -1,14 +1,23 @@
 <template>
   <v-app>
-    <NodeNetwork v-if="$store.state.overlay" class="above-all2"></NodeNetwork>
-    <snack class="above-all"></snack>
-      <barraup class="above-all"></barraup>
-    
-    
+   
+   
     <!-- Sizes your content based upon application components -->
     <v-main>
+
+     
+
+      <barraup></barraup>
       <!-- Provides the application the proper gutter -->
       <v-container fluid>
+
+        <v-overlay :value="$store.state.overlay" :z-index="40000">
+      <v-progress-circular
+        indeterminate
+        size="64"
+        color="black"
+      ></v-progress-circular>
+    </v-overlay>
         <!-- If using vue-router -->
        
             <router-view></router-view>
@@ -38,7 +47,7 @@ export default {
       NodeNetwork
     },
     data: () => ({
-     
+      overlay: false
     }),
     mounted(){
       this.removeLoadingOverlay();
@@ -67,14 +76,12 @@ export default {
 </script>
 
 <style scoped>
-.above-all {
-  position: fixed; /* or absolute, fixed, or sticky depending on your layout */
-  z-index: 900; /* A high value to ensure it's above other elements */
-}
 
-.above-all2 {
-  position: fixed; /* or absolute, fixed, or sticky depending on your layout */
-  z-index: 9000; /* A high value to ensure it's above other elements */
+
+#app {
+  background-color: #f0f4f8; /* Elige el color que prefieras */
+  min-height: 100vh; /* Asegúrate de que el fondo cubra toda la pantalla */
+  font-family: 'Microsoft Sans Serif', sans-serif;
 }
 </style>
 

@@ -100,7 +100,7 @@ export default {
 <style>
 .elevation-3 {
   box-shadow: 2px 2px 6px rgba(0,0,0,0.24);
-  z-index: 10000; /* Asegúrate de que el z-index sea suficientemente alto para sobresalir sobre otros componentes */
+  z-index: 10; /* Asegúrate de que el z-index sea suficientemente alto para sobresalir sobre otros componentes */
 }
 .v-overlay {
   opacity: 0 !important; /* Hace el overlay completamente transparente */
@@ -116,7 +116,7 @@ export default {
   transform: translateX(100%);
   box-shadow: -2px 0 8px rgba(0,0,0,0.1);
   transform: translateX(0);
-  z-index: 10000; /* Asegúrate de que el z-index sea suficientemente alto para sobresalir sobre otros componentes */
+  z-index: 10; /* Asegúrate de que el z-index sea suficientemente alto para sobresalir sobre otros componentes */
 }
 .slide-enter-active, .slide-leave-active {
   transition: transform 0.3s ease-in-out;

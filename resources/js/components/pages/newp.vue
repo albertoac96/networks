@@ -1,19 +1,36 @@
 <template>
-    <v-row dense>
-        <v-col class=".d-none .d-sm-flex" cols="3" sm="1" md="2" lg="3"></v-col>
 
-        <v-col cols="6">
-            <v-card class="justify-center mb-6">
-                <v-card-title>
-                    New project
-                </v-card-title>
+<v-dialog
+      v-model="dialog"
+      persistent
+      max-width="900"
+      overlay-color="black"
+      :overlay-opacity="0.7" 
+      :hide-overlay="false"
+      :elevation="24"
+    >
+    <v-toolbar height="50px" flat color="#2B968A" >
+
+        <img
+              src="storage/assets/p3_newproject.png"
+              alt="icon"
+              style="width: 20px; height: 20px; rounded"
+            />
+               
+               <span class="ml-2" style="color: white; font-size: 14px !important; font-family: 'Maven Pro', sans-serif; font-weight: 700;">New dataset</span>
+           </v-toolbar>
+
+
+            <v-card class="justify-center" style="height: 550px;">
+               
                 <v-card-text>
-                    <v-stepper v-model="e1">
-                        <v-stepper-header>
+                    <v-stepper v-model="e1" flat color="purple" tile>
+                        <v-stepper-header color="#2B968A">
                             <v-stepper-step
                                 editable
                                 :complete="e1 > 1"
                                 step="1"
+                                color="#43C2B4"
                             >
                                 New Data Source
                             </v-stepper-step>
@@ -24,13 +41,14 @@
                                 editable
                                 :complete="e1 > 2"
                                 step="2"
+                                color="#43C2B4"
                             >
                                 Choose fields
                             </v-stepper-step>
 
                             <v-divider></v-divider>
 
-                            <v-stepper-step step="3" editable>
+                            <v-stepper-step step="3" editable color="#43C2B4">
                                 Select a Geographic System
                             </v-stepper-step>
                         </v-stepper-header>
@@ -39,31 +57,20 @@
                             <v-stepper-content step="1">
                                 <v-card>
                                     <v-card-text>
-                                        <v-row>
-                                            <v-col cols="12">
-                                                <v-text-field
-                                                    v-model="info.name"
-                                                    label="Name"
-                                                ></v-text-field>
-                                            </v-col>
+                                        <v-row dense class="d-flex align-center">
 
-                                            <v-col cols="12">
-                                                <v-textarea
-                                                    v-model="info.desc"
-                                                    name="input-7-1"
-                                                    label="Description"
-                                                ></v-textarea>
-                                            </v-col>
-
-                                            <v-col cols="12">
+                                            <v-col cols="6">
                                                 <v-file-input
                                                     v-model="fArchivo"
                                                     accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, .shp"
                                                     id="archivoExcel"
-                                                    label="Upload data source"
+                                                    label="Upload data source*"
                                                     outlined
                                                     dense
                                                     @change="subirExcel()"
+                                                    hint="Only XLSX, XLS files accepted"
+                                                    persistent-hint
+                                                    color="#2B968A"
                                                 ></v-file-input>
                                                 <v-alert
                                                     v-if="!iArchivo"
@@ -75,24 +82,55 @@
                                                     files accepted
                                                 </v-alert>
                                             </v-col>
-
+                                            <v-col cols="6">
                                             <v-combobox
-                                                label="Select Sheet"
+                                            outlined
+                                                    dense
+                                                    color="#2B968A"
+                                                    ref="hojas"  
+                                                  :menu-props="{closeOnClick: false, closeOnContentClick: false, persistent: true}"
+                                                label="Select Sheet*"
                                                 v-model="selectHoja"
                                                 :items="hojas"
                                                 item-text="name"
                                                 item-value="name"
                                             ></v-combobox>
+                                            </v-col>
+
+
+                                            <v-col cols="12">
+                                                <v-text-field
+                                                outlined
+                                                    dense
+                                                    v-model="info.name"
+                                                    label="Name*"
+                                                    color="#2B968A"
+                                                ></v-text-field>
+                                            </v-col>
+
+                                            <v-col cols="12">
+                                                <v-textarea
+                                                    outlined
+                                                    v-model="info.desc"
+                                                    name="input-7-1"
+                                                    label="Description"
+                                                    color="#2B968A"
+                                                ></v-textarea>
+                                            </v-col>
+
+                                           
                                         </v-row>
                                     </v-card-text>
                                     <v-card-actions>
-                                        <v-btn color="primary" @click="e1 = 2">
+                                        <v-spacer></v-spacer>
+                                        <v-btn text @click="cancel()">
+                                            Cancel
+                                        </v-btn>
+                                        <v-btn color="#43C2B4" @click="e1 = 2" :disabled="pasos.btn1">
                                             Continue
                                         </v-btn>
 
-                                        <v-btn text>
-                                            Cancel
-                                        </v-btn>
+                                       
                                     </v-card-actions>
                                 </v-card>
                             </v-stepper-content>
@@ -100,38 +138,50 @@
                             <v-stepper-content step="2">
                                 <v-card>
                                     <v-card-text>
-                                        <v-row>
+                                        <v-row dense>
                                             <v-col cols="12">
                                                 <v-combobox
+                                                outlined
+                                                dense
                                                     :items="items"
                                                     label="Node ID"
                                                     v-model="nodes.id"
+                                                    color="#2B968A"
                                                 ></v-combobox>
                                             </v-col>
 
                                             <v-col cols="12">
                                                 <v-combobox
+                                                outlined
+                                                dense
                                                     :items="items"
                                                     label="Node Name"
                                                     v-model="nodes.name"
+                                                    color="#2B968A"
                                                 ></v-combobox>
                                             </v-col>
 
                                             <v-col cols="12">
                                                 <v-combobox
+                                                outlined
+                                                dense
                                                     :items="items"
                                                     label="Node X"
                                                     v-model="nodes.x"
                                                     @change="chkCoords()"
+                                                    color="#2B968A"
                                                 ></v-combobox>
                                             </v-col>
 
                                             <v-col cols="12">
                                                 <v-combobox
+                                                outlined
+                                                dense
                                                     :items="items"
                                                     label="Node Y"
                                                     v-model="nodes.y"
                                                     @change="chkCoords()"
+                                                    color="#2B968A"
                                                 ></v-combobox>
                                             </v-col>
                                         </v-row>
@@ -147,40 +197,52 @@
                                         </v-alert>
                                     </v-card-text>
                                     <v-card-actions>
-                                        <v-btn color="primary" @click="e1 = 3">
-                                            Continue
-                                        </v-btn>
-
-                                        <v-btn text>
+                                        <v-spacer></v-spacer>
+                                        <v-btn text @click="cancel()">
                                             Cancel
+                                        </v-btn>
+                                        <v-btn color="#43C2B4" @click="e1 = 3" :disabled="pasos.btn2">
+                                            Continue
                                         </v-btn>
                                     </v-card-actions>
                                 </v-card>
                             </v-stepper-content>
 
                             <v-stepper-content step="3">
-                                <v-card
-                                    class="mb-12"
-                                    color="grey lighten-1"
-                                    height="200px"
-                                ></v-card>
+                                <v-card height="350px" tile flat>
+                                <v-card-text>
+                                   <p style="font-size: 1.2em">
+                                    The coordinate system used is WGS 84 (EPSG:4326), the global standard for latitude and longitude. 
+                                    It is compatible with Leaflet and widely used in web mapping. 
+                                    We are working on incorporating additional coordinate systems in the future.
+                                   </p>
+                                   <p style="font-size: 1.2em">
+                                   By creating the dataset, you agree to upload your information to the RNG Special Network Analysis server. 
+                                   You can delete your data at any time by removing the dataset.
+                                    </p>
 
-                                <v-btn color="primary" @click="createp()">
-                                    Create Project
-                                </v-btn>
-
-                                <v-btn text>
-                                    Cancel
-                                </v-btn>
+                                </v-card-text>
+                            
+                            </v-card>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn text @click="cancel()">
+                                            Cancel
+                                        </v-btn>
+                                        <v-btn color="#43C2B4" @click="createp()">
+                                            Continue
+                                        </v-btn>
+                            </v-card-actions>
+                               
                             </v-stepper-content>
                         </v-stepper-items>
                     </v-stepper>
                 </v-card-text>
             </v-card>
-        </v-col>
+     
 
-        <v-col cols="3"></v-col>
-    </v-row>
+    </v-dialog>
+
 </template>
 <script>
 import readXlsFile from "read-excel-file";
@@ -188,7 +250,7 @@ import download from "downloadjs";
 
 export default {
     name: "",
-    props: [],
+    props: ['dialog'],
     components: {},
     data: () => ({
         e1: 1,
@@ -213,6 +275,15 @@ export default {
             type: "error",
             text: "Hola",
             visible: false
+        },
+        pasos: {
+            btn1: true,
+            btn2: true,
+            btn3: true
+        },
+        focus: {
+            closeOnClick: false,
+            closeOnContentClick: true
         }
     }),
     mounted() {},
@@ -227,12 +298,33 @@ export default {
                     this.datos = data.slice(1);
                     console.log("ITEMS");
                     console.log(this.items);
+                    this.pasos.btn1 = false;
                 }
             );
+        },
+        nodes: {
+      handler(newValue) {
+        // Llama al método para verificar si todas las propiedades son diferentes de null
+        var allNodesNotNull = this.areAllPropertiesNotNull(newValue);
+        console.log(allNodesNotNull);
+        if(allNodesNotNull == true){
+            this.pasos.btn2 = false;
         }
+      },
+      deep: true, // Necesario para observar cambios en las propiedades del objeto nodes
+    },
     },
     computed: {},
     methods: {
+        areAllPropertiesNotNull(obj) {
+      // Verifica cada propiedad del objeto si tiene valor null
+      for (const key in obj) {
+        if (obj[key] === null) {
+          return false;
+        }
+      }
+      return true;
+    },
         subirExcel() {
             console.log(this.fArchivo);
             if (
@@ -245,10 +337,14 @@ export default {
                 this.iArchivo = true;
 
                 const file = this.fArchivo;
+                this.info.name = file.name;
 
                 readXlsFile(file, { getSheets: true }).then(sheets => {
                     this.hojas = sheets;
                     console.log(this.hojas);
+                    this.$refs["hojas"].focus();
+                    this.$refs["hojas"].activateMenu();
+                    
                 });
 
                 let InstFormData = new FormData();
@@ -394,7 +490,14 @@ export default {
 
             //this.$router.push('/verp/1')
             //download(JSON.stringify(this.datos), "apidata.json", "text/plain");
+        },
+        cancel(){
+            this.$emit('cancel-dialog'); 
         }
     }
 };
 </script>
+
+<style>
+
+</style>

@@ -71,7 +71,20 @@
             ></l-control-layers>
 
             <l-control position="bottomright">
+
                 <v-card>
+                    <v-chip small color="success" outlined>
+                        <input
+                            type="checkbox"
+                            id="chkTool"
+                            v-model="chkTooltip"
+                        />
+                        Mostrar etiquetas
+                    </v-chip>
+                </v-card>
+
+
+                <v-card class="mt-2">
                     <div>
                         <v-chip
                             small
@@ -106,33 +119,10 @@
             </l-control>-->
 
             <l-control position="topright">
-                <v-card class="pa-2">
-                    <v-chip small color="success" outlined>
-                        <input
-                            type="checkbox"
-                            id="chkTool"
-                            v-model="chkTooltip"
-                        />
-                        Mostrar etiquetas
-                    </v-chip>
-                </v-card>
+               
 
-                <button @click="exportMap">Exportar Mapa</button>
+              
 
-               <div> <v-menu offset-y>
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          color="primary"
-          dark
-          v-bind="attrs"
-          v-on="on"
-        >
-          Dropdown
-        </v-btn>
-      </template>
-     <label>hola</label>
-    </v-menu>
-</div>
 
             </l-control>
 
@@ -172,7 +162,7 @@
       v-for="geoItem in $store.state.selectGraphs"
       :key="geoItem.id"
       :geojson="geoItem"
-      :optionsStyle="estilo"
+      :optionsStyle="defineEstilo(geoItem)"
     ></l-geo-json>
 
            
@@ -384,12 +374,22 @@ export default {
         singleTable(){
             if(this.singleTable){
                 var centro = this.calculateCenter;
+                this.zoom = this.mapa.infoMapa.zoom.inicial;
                 console.log(centro);
                 this.center = L.latLng(
                     parseFloat(centro.y),
                     parseFloat(centro.x)
                 );
-                this.zoom = this.mapa.infoMapa.zoom.inicial;
+                this.map.setView(
+                L.latLng(
+                    centro.y,
+                    centro.x
+                ),
+                this.mapa.infoMapa.zoom.inicial,
+                { animate: true }
+            );
+                
+                
             }
         }
     },
@@ -473,6 +473,26 @@ export default {
 
           // Elimina el enlace después de la descarga
           document.body.removeChild(enlaceDescarga);
+        },
+        defineEstilo(item){
+            console.log(item);
+            if(item.properties && item.properties.stroke){
+                return {
+                    weight: item.properties['stroke-width'],
+                    color: item.properties.stroke,
+                    opacity: 1,
+                    fillColor: item.properties.stroke,
+                    fillOpacity: 0.5
+                };
+            } else {
+                return {
+                    weight: 2,
+                    color: "white",
+                    opacity: 1,
+                    fillColor: "white",
+                    fillOpacity: 0.5
+                };
+            }
         }
     }
 };

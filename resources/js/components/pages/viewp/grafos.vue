@@ -1,18 +1,26 @@
 <template>
     <div>
-        <h4>Graphs Layers</h4>
-        <v-subheader>Total: {{ $store.state.grafos.length }}</v-subheader>
-        <v-btn @click="agrupar()">Agrupar grafos</v-btn>
-        <v-btn @click="update()">Actualizar info</v-btn>
 
-        <v-list subheader two-line flat>
+        <v-toolbar height="30px" flat color="#2B968A" class="d-flex" >
+                <span class="ml-2" style="color: white; font-family: 'Maven Pro', sans-serif; font-weight: 700;">Graph Layers</span>
+                <v-divider class="mx-4" inset vertical dense></v-divider>
+                <v-subheader style="color: white; font-family: 'Maven Pro', sans-serif; font-weight: 700;">Total: {{ $store.state.grafos.length }}</v-subheader>
+            </v-toolbar>
+        <v-row dense class="ml-4 mt-2">
+        
+        
+        <!--<v-btn @click="agrupar()">Agrupar grafos</v-btn>
+        <v-btn @click="update()">Actualizar info</v-btn>-->
+    </v-row>
+
+        <v-list subheader two-line flat dense>
             <v-list-item-group v-model="settings" multiple dense>
                 <v-list-item v-for="(grafo, idGrafo) in $store.state.grafos" :key="idGrafo" three-line dense :class="{
                     'highlighted-item': highlighted === grafo.idGrafo
-                }">
+                }" style="border: 1px solid black; margin: 10px;">
                     <v-list-item-action v-show="grafo.cContenido != null">
                         <v-checkbox :input-value="grafo.active" @change="toggleGrafo(grafo, $event)"
-                            color="primary"></v-checkbox>
+                            color="#43C2B4"></v-checkbox>
                     </v-list-item-action>
 
                     <v-list-item-content @click="verGrafo(grafo)">
@@ -30,16 +38,17 @@
                                 </v-btn>
                             </template>
                             <v-list flat>
-                                <v-list-item>
+                                <v-list-item v-if="grafo.nodes && grafo.nodes.length > 0 && grafo.nodes[0]['ControlValue'] == null && grafo.nodes[0]['ControlValue'] == ''">
                                     <v-list-item-title>Calculate Nodes
                                         Control</v-list-item-title>
                                 </v-list-item>
-                                <v-list-item>
+                                <v-list-item v-if="grafo.nodes && grafo.nodes.length > 0 && grafo.nodes[0]['RelativeAssymetry'] == null && grafo.nodes[0]['RelativeAssymetry'] == ''">
                                     <v-list-item-title>Calculate Relative
                                         Assimetry</v-list-item-title>
                                 </v-list-item>
-                                <v-list-item>
-                                    <v-list-item-title>More information</v-list-item-title>
+                                <v-list-item @click="changeEstilo(grafo)">
+                                    <v-list-item-title>Change Style</v-list-item-title>
+                                    
                                 </v-list-item>
                                 <v-list-item @click="DescargaInfo(grafo)">
                                     <v-list-item-title>Download</v-list-item-title>
@@ -50,6 +59,9 @@
                 </v-list-item>
             </v-list-item-group>
         </v-list>
+
+
+     
     </div>
 </template>
 <script>
@@ -61,7 +73,8 @@ export default {
         grafos: [],
         settings: [],
         highlighted: null,
-        selectedGrafos: []
+        selectedGrafos: [],
+        verEstilo: true
     }),
     mounted() { },
     created() {
@@ -74,9 +87,18 @@ export default {
     watch: {},
     computed: {},
     methods: {
+        changeEstilo(grafo){
+            const currentId = grafo.idGrafo;
+            const index = this.grafos.findIndex(item => item.idGrafo === currentId);
+            //this.grafos[index].active = true;
+           console.log(this.grafos);
+            this.toggleGrafo(grafo, true);
+            this.verGrafo(grafo);
+            this.$store.state.verEstilo = true;
+        },
         toggleGrafo(grafo, event) {
-            console.log("ENTRE A TOGGLE");
-            console.log(grafo);
+            //console.log("ENTRE A TOGGLE");
+            //console.log(grafo);
 
             if (grafo.netType == "vd" || grafo.netType == "dt") {
                 var contenido = grafo.cContenido;
@@ -84,8 +106,8 @@ export default {
                 var contenido = JSON.parse(grafo.cContenido);
             }
 
-            console.log(contenido);
-            console.log(this.$store.state.grafos);
+            //console.log(contenido);
+            //console.log(this.$store.state.grafos);
             if (event === true) {
                 this.$store.state.selectGraphs.push(contenido.geo);
                 this.selectedGrafos.push(grafo);
@@ -93,8 +115,8 @@ export default {
                 const index = this.$store.state.selectGraphs.findIndex(
                     item => item.id == contenido.geo.id
                 );
-                console.log(contenido.geo.id);
-                console.log(index);
+                //console.log(contenido.geo.id);
+                //console.log(index);
                 this.$store.state.selectGraphs.splice(index, 1);
 
                 const index2 = this.selectedGrafos.findIndex(
@@ -102,7 +124,7 @@ export default {
                 );
                 this.selectedGrafos.splice(index2, 1);
             }
-            console.log(this.$store.state.selectGraphs);
+            //console.log(this.$store.state.selectGraphs);
         },
         verInfo(grafo) {
             if (grafo.netType == "vd" || grafo.netType == "dt") {
@@ -146,25 +168,25 @@ export default {
         verTipo(netType) {
             switch (netType) {
                 case "vd":
-                    netType = "Voronoi Diagram";
+                    netType = "Voronoi";
                     break;
                 case "dt":
-                    netType = "Delauney Triangulation";
+                    netType = "Delauney";
                     break;
                 case "gg":
-                    netType = "Gabriel Graph";
+                    netType = "Gabriel";
                     break;
                 case "bs":
                     netType = "Beta Skeleton";
                     break;
                 case "rng":
-                    netType = "Relative Neihbourhood Graph";
+                    netType = "RNG";
                     break;
                 case "lng":
-                    netType = "Limited Neihbourhood Graph";
+                    netType = "LNG";
                     break;
                 default:
-                    netType = "Unknown Network Type";
+                    netType = "Unknown";
                     break;
             }
             return netType;
@@ -177,6 +199,8 @@ export default {
                 var contenido = JSON.parse(grafo.cContenido);
             }
 
+            contenido.geo.name = this.nombre(grafo);
+
             this.$store.state.selectGraph = contenido;
             this.$store.state.idGrafo = grafo.idGrafo;
             this.$store.state.singleTable = contenido.nodes;
@@ -184,13 +208,13 @@ export default {
             this.$store.state.formatedData.distanceMatrix =
                 contenido.distanceMatrix;
 
-            console.log(contenido);
+            //console.log(contenido);
 
             this.crearListaAdiacencia();
             this.crearListaEdges();
 
-            console.log(this.$store.state.headers);
-            console.log(this.$store.state.formatedData);
+            //console.log(this.$store.state.headers);
+            //console.log(this.$store.state.formatedData);
         },
         nombre(grafo) {
             if (grafo.netType == "vd" || grafo.netType == "dt") {
@@ -233,7 +257,7 @@ export default {
             return LcResp;
         },
         agrupar() {
-            console.log(this.selectedGrafos);
+            //console.log(this.selectedGrafos);
             var tablaFinal = [];
 
             for (var i = 0; i < this.selectedGrafos.length; i++) {
@@ -246,7 +270,7 @@ export default {
 
                 var nodes = contenido.nodes;
                 var grafoNombre = this.nombre(grafo);
-                console.log(nodes);
+                //console.log(nodes);
 
                 var control = "control_" + nameGrafo;
                 var ra = "ra_" + nameGrafo;
@@ -273,7 +297,7 @@ export default {
                         RelativeAssymetrySum += nodes[u].RelativeAssymetry;
                     } else {
                         if (u === nodes.length) {
-                            console.log("grafo-" + grafo.idGrafo);
+                            //console.log("grafo-" + grafo.idGrafo);
                             tablaFinal[u] = {
                                 NodeID: "Promedio",
                                 "Node Name": "",
@@ -283,23 +307,23 @@ export default {
                                 [ra]: RelativeAssymetrySum / nodes.length
                             };
                         }
-                        console.log(tablaFinal);
+                        //console.log(tablaFinal);
                     }
                 }
             }
 
-            console.log("HOLA");
+            //console.log("HOLA");
 
             // Convertir tablaFinal a CSV y descargar
             this.downloadCSV(tablaFinal);
         },
         promedio(items, tipo) {
-            console.log("entre a promedio " + tipo);
-            console.log(items);
+            //console.log("entre a promedio " + tipo);
+            //console.log(items);
             let nSum = 0;
             for (var i = 0; i < items.length; i++) {
                 nSum += items[i][tipo];
-                //console.log(items[i][tipo]);
+                ////console.log(items[i][tipo]);
             }
             return nSum / items.length;
         },
@@ -368,10 +392,10 @@ export default {
 
             var index = null;
 
-            console.log("ADIACENCIA");
-            //console.log(this.$store.state.selectGraph.adjacencyList);
-            console.log("SINGLE TABLE");
-            //console.log(this.$store.state.singleTable);
+            //console.log("ADIACENCIA");
+            ////console.log(this.$store.state.selectGraph.adjacencyList);
+            //console.log("SINGLE TABLE");
+            ////console.log(this.$store.state.singleTable);
 
             // Recorrer la lista de adyacencia
             for (
@@ -379,7 +403,7 @@ export default {
                 this.$store.state.selectGraph.adjacencyList.length > i;
                 i++
             ) {
-                //console.log(this.$store.state.singleTable[i]);
+                ////console.log(this.$store.state.singleTable[i]);
 
                 // Crear el objeto con el nodo y sus relaciones
                 var elemento = {
@@ -406,10 +430,10 @@ export default {
                         }
 
                         if (index == -1) {
-                            // console.log("NO EXISTE");
+                            // //console.log("NO EXISTE");
                             elemento["Relation-" + (u + 1)] = "NO EXISTE";
                         } else {
-                            // console.log(this.$store.state.singleTable[index]);
+                            // //console.log(this.$store.state.singleTable[index]);
                             elemento["Relation-" + (u + 1)] =
                                 this.$store.state.singleTable[index].NodeID +
                                 "-" +
@@ -420,19 +444,19 @@ export default {
                     }
                 }
 
-                //console.log(elemento);
+                ////console.log(elemento);
                 jsondata.push(elemento);
             }
             this.$store.state.headers.adjacencyList = null;
             this.$store.state.headers.adjacencyList = encabezados;
             this.$store.state.formatedData.adjacencyList = jsondata;
 
-            //console.log(this.encabezados);
-            //console.log(this.jsondata);
+            ////console.log(this.encabezados);
+            ////console.log(this.jsondata);
         },
 
         crearListaEdges() {
-            //  console.log(this.$store.state.selectGraph.EdgesList);
+            //  //console.log(this.$store.state.selectGraph.EdgesList);
             var data = [];
             for (
                 var i = 0;
@@ -483,11 +507,11 @@ export default {
                     headers: this.$store.state.headers,
                     formatedData: this.$store.state.formatedData
                 };
-                console.log(data);
+                //console.log(data);
                 axios
                     .post("/updategrafos", data)
                     .then((res) => {
-                    console.log(res.data);
+                    //console.log(res.data);
                 
                 })
                 .catch((error) => {
@@ -495,7 +519,7 @@ export default {
             }
         },
         DescargaInfo(grafo) {
-            console.log(grafo);
+            //console.log(grafo);
             var sTable = JSON.parse(grafo.cContenido);
             sTable = sTable.nodes;
             this.$store.state.formatedData.singleTable = Object.values(
@@ -552,7 +576,7 @@ export default {
 
 <style>
 .highlighted-item {
-    background-color: #b3e5fc;
+    background-color: #d9faf7;
     /* Color de fondo para el elemento destacado */
 }
 </style>

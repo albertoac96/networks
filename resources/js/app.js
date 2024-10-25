@@ -99,7 +99,7 @@ let routes = [
     
     { path: '/', name: 'home', component: require('./components/pages/proyectos.vue').default },
     { path: '/newp', name: 'newp', component: require('./components/pages/newp.vue').default },
-    { path: '/verp/:id', name: 'verp', component: require('./components/pages/viewp/viewp.vue').default },
+    { path: '/verp/:id', name: 'verp', component: require('./components/pages/viewp/verDataset.vue').default },
     
     
 

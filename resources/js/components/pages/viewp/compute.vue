@@ -1,7 +1,7 @@
 <template>
-    <v-card flat>
-        <v-card-text>
-            <h5>Project Info</h5>
+    <v-row flat dense>
+       
+            <!--<h5>Project Info</h5>
             <v-row>
         <v-col
           cols="12"
@@ -35,13 +35,20 @@
                 <v-btn color="error" @click="fnNodeControl()"
                     >Calculate Nodes Control</v-btn
                 >
-            </v-col>
+            </v-col>-->
 
-            <v-col cols="12">
+            <v-toolbar height="30px" flat color="#2B968A" class="d-flex justify-center align-center" >
+                <span class="ml-2" style="color: white; font-family: 'Maven Pro', sans-serif; font-weight: 700;">Compute Graph</span>
+            </v-toolbar>
+
+           
+            <v-row class="m-2">
+            <v-col cols="12" dense>
                 <h5>Network Type</h5>
 
-                <v-radio-group v-model="cg.netType" row>
+                <v-radio-group v-model="cg.netType" row color="#2B968A">
                     <v-radio
+                    color="#2B968A"
                         v-for="item in models"
                         :key="item.id"
                         :label="item.name"
@@ -59,6 +66,7 @@
                             step="any"
                             min="0"
                             ref="input"
+                            color="#2B968A"
                             :rules="[numberRule]"
                             v-model="cg.beta"
                         ></v-text-field>
@@ -74,6 +82,7 @@
                             step="any"
                             min="0"
                             ref="input"
+                            color="#2B968A"
                             :rules="[numberRule]"
                             v-model="cg.sigma"
                         ></v-text-field>
@@ -82,10 +91,11 @@
                 <v-flex xs1></v-flex>
             </v-col>
 
-            <v-col cols="12">
-                <h5>Distance funtion</h5>
-                <v-radio-group v-model="cg.distFuntion" row>
+            <v-col cols="12" dense>
+                <h5>Distance function</h5>
+                <v-radio-group v-model="cg.distFuntion" row color="#2B968A">
                     <v-radio
+                    color="#2B968A"
                         v-for="item in distance"
                         :key="item.id"
                         :label="item.name"
@@ -94,11 +104,33 @@
                 </v-radio-group>
             </v-col>
 
-            <v-col cols="12">
-                <v-btn color="success" @click="fnProccess()">Proccess</v-btn>
+            <v-col cols="12" dense>
+                <h5>Calculate</h5>
+                <v-radio-group row color="#2B968A" multiple v-model="cg.control">
+                    <v-radio
+                    color="#2B968A"
+                       :value="1"
+                       
+                        label="Control value"
+                        
+                    ></v-radio>
+                    <v-radio
+                    color="#2B968A"
+                    :value="2"
+                   
+                        label="Relative assymetry"
+                        
+                    ></v-radio>
+                </v-radio-group>
             </v-col>
-        </v-card-text>
-    </v-card>
+        </v-row>
+            <v-col cols="12">
+                <v-btn color="error" block @click="fnProccess()">Compute</v-btn>
+            </v-col>
+
+     
+      
+    </v-row>
 </template>
 
 <script>
@@ -119,28 +151,29 @@ export default {
             { name: "Limited Neihbourhood Graph", id: "lng" }
         ],
         distance: [
-            { name: "Haversine in Kms", id: "hk" },
-            { name: "Haversine in Milles", id: "hm" },
+           
             { name: "Euclidean", id: "e" }
         ],
         cg: {
             beta: "1",
             sigma: "0",
             info: null,
-            distFuntion: "hk",
-            netType: null,
-            singleTable: []
+            distFuntion: "e",
+            netType: "bs",
+            singleTable: [],
+            control: [1, 2]
         },
         selectModel: null,
         selectDis: "hk",
         disSigma: true,
-        disBeta: true,
+        disBeta: false,
         disHV: false,
         numberRule: val => {
             if (val < 0) return "Please enter a positive number";
             return true;
         },
-        polygons: []
+        polygons: [],
+        control: null
     }),
     mounted() {
         console.log(this.singleTable);
@@ -166,7 +199,7 @@ export default {
                     break;
                 case "gg":
                     this.disSigma = true;
-                    this.disBeta = false;
+                    this.disBeta = true;
                     this.cg.beta = 1;
                     this.cg.sigma = 0;
                     break;
@@ -178,7 +211,7 @@ export default {
                     break;
                 case "rng":
                     this.disSigma = true;
-                    this.disBeta = false;
+                    this.disBeta = true;
                     this.cg.beta = 2;
                     this.cg.sigma = 0;
                     break;
@@ -208,6 +241,7 @@ export default {
                 .catch(error => {});
         },
         fnProccess() {
+            this.$store.state.overlay = true;
             this.cg.info = this.info;
             this.cg.singleTable = this.singleTable;
             console.log(this.cg);
@@ -226,13 +260,13 @@ export default {
                     this.$store.state.selectGraph = contenido;
                     this.$store.state.idGrafo = res.data.grafo[0].idGrafo;
                     this.$store.state.singleTable = contenido.nodes;
-                    this.$store.state.grafos.push(res.data.grafo[0]);
+                    this.$store.state.grafos.unshift(res.data.grafo[0]);
                     var total = this.$store.state.grafos.length;
                     var contenidoNuevo = JSON.parse(
                         this.$store.state.grafos[total - 1].cContenido
                     );
-                    this.$store.state.grafos[total - 1].active = true;
-                    this.$store.state.selectGraphs.push(contenidoNuevo.geo);
+                    this.$store.state.grafos[0].active = true;
+                    this.$store.state.selectGraphs.unshift(contenidoNuevo.geo);
                     console.log(contenido);
                     console.log(res.data);
                     console.log(this.$store.state.grafos);
@@ -240,6 +274,7 @@ export default {
 
                     this.$store.state.snackbar.text = "The graph has been processed successfully.";
                     this.$store.state.snackbar.visible = true;
+                    this.$store.state.overlay = false;
 
                 })
                 .catch(error => {});

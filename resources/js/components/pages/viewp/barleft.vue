@@ -1,5 +1,10 @@
 <template>
-    <v-navigation-drawer v-model="$store.state.menu.drawer" :mini-variant.sync="$store.state.menu.mini" app width="350" class="above-all" >
+    <v-navigation-drawer 
+    v-model="$store.state.menu.drawer" 
+    :mini-variant.sync="$store.state.menu.mini" 
+    app 
+    width="350" 
+    floating >
 
         <v-list-item class="px-2">
         <v-list-item-avatar>
@@ -103,8 +108,5 @@ export default {
 </script>
 
 <style scoped>
-.above-all {
 
-  z-index: 1000; /* A high value to ensure it's above other elements */
-}
 </style>
