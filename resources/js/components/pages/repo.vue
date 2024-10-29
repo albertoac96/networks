@@ -14,22 +14,59 @@
                 filter-row
             >
            
-            <vue-excel-column
-                v-for="(column, index) in headersData"
-                :key="index"
-                :field="column.text"
-                :label="column.value"
-                type="string"
-                readonly
-                
-                />
+            <vue-excel-column field="Clave" label="Clave" type="string" :sticky="true" :readonly="true" @select="clickCve"/>
+                    <vue-excel-column field="Toponym" label="Toponym" type="string" :sticky="true"  :change="changeCell" />
+                    <vue-excel-column field="PopSV" label="PopSV" type="number" :change="changeCell" />
+                    <vue-excel-column field="PopJV" label="PopJV" type="number" :change="changeCell" />
+                    <vue-excel-column field="VivSV" label="VivSV" type="number" :change="changeCell" />
+                    <vue-excel-column field="Pop-Ref" label="Pop-Ref" type="string" :change="changeCell" />
+                    <vue-excel-column field="Revisado" label="Revisado" type="check10" :change="changeCell" :validate="validBandera" />
+                    <vue-excel-column field="Homonym" label="Homonym" :change="changeCell" type="number"/>
+                    <vue-excel-column field="idGibson" label="idGibson" type="string" :change="changeCell"/>
+                    <vue-excel-column field="idGA" label="idGA" type="string" :change="changeCell"/>
+                    <vue-excel-column field="idHB" label="idHB" type="string" :change="changeCell"/>
+                    <vue-excel-column field="idSV" label="idSV" type="string" :change="changeCell"/>
+                    <vue-excel-column field="idHicks" label="idHicks" type="string" :change="changeCell"/>
+                    <vue-excel-column field="ModernName" label="ModernName" type="string" :change="changeCell"/>
+                    <vue-excel-column field="OtherNames" label="OtherNames" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Municipality" label="Municipality" type="string" :change="changeCell"/>
+                    <vue-excel-column field="State" label="State" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Lat" label="Lat" type="number" :change="changeCell"/>
+                    <vue-excel-column field="Long" label="Long" type="number" :change="changeCell"/>
+                    <vue-excel-column field="CoordSource" label="CoordSource" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Ethnicity" label="Ethnicity" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Politics" label="Politics" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Realm" label="Realm" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Estatus" label="Estatus" type="string" :change="changeCell"/>
+                    <vue-excel-column field="SubjectTo" label="SubjectTo" type="string" :change="changeCell"/>
+                    <vue-excel-column field="PoliticalCode" label="PoliticalCode" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Territory" label="Territory" type="string" :change="changeCell"/>
+                    <vue-excel-column field="nSubjectTowns" label="nSubjectTowns" type="number" :change="changeCell"/>
+                    <vue-excel-column field="TerritorialRank" label="TerritorialRank" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Military" label="Military" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Tribute" label="Tribute" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Tributaries" label="Tributaries" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Economy" label="Economy" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Market" label="Market" type="string" :change="changeCell"/>
+                    <vue-excel-column field="EarlyMartekStatus" label="EarlyMartekStatus" type="string" :change="changeCell"/>
+                    <vue-excel-column field="LateMarketStatus" label="LateMarketStatus" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Dock" label="Dock" type="string" :change="changeCell"/>
+                    <vue-excel-column field="CeremonialCenter" label="CeremonialCenter" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Other" label="Other" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Bibliography" label="Bibliography" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Observations" label="Observations" type="string" :change="changeCell"/>
+                    <vue-excel-column field="SourcePlacename" label="SourcePlacename" type="string" :change="changeCell"/>
+                    <vue-excel-column field="NameTranslation" label="NameTranslation" type="string" :change="changeCell"/>
+                    <vue-excel-column field="TranslatedBy" label="TranslatedBy" type="string" :change="changeCell"/>
+                    <vue-excel-column field="SourceGlyph" label="SourceGlyph" type="string" :change="changeCell"/>
+                    <vue-excel-column field="ChangeName" label="ChangeName" type="string" :change="changeCell"/>
             </vue-excel-editor>
                 </v-card>
 
 
 
             <v-toolbar flat color="primary" dark class="mt-4">
-                <v-toolbar-title>Datasets</v-toolbar-title>
+                <v-toolbar-title>Available Datasets</v-toolbar-title>
             </v-toolbar>
 
          
