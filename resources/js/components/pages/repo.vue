@@ -143,43 +143,9 @@
       <v-card>
         
 
-        <v-card-text>
 
-            mapa
-
-            <l-map
-            ref="map"
-            :zoom="zoom"
-            :max-zoom="maxZoom"
-            :min-zoom="minZoom"
-            :center="center"
+    <mapa :dialog="dialog" :json="geojson"></mapa>
         
-        >
-
-        <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
-
-        <l-geo-json
-           :geojson="geojson"
-           :options-style="styleFunction"
-         ></l-geo-json>
-    
-    
-    
-    </l-map>
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="primary"
-            text
-            @click="dialog = false"
-          >
-            I accept
-          </v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -191,6 +157,7 @@
 
 <script>
 import Papa from "papaparse";
+import Mapa from './viewp/map_copy.vue';
 import jsonData from '/storage/data.json';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -212,11 +179,9 @@ import {
 } from "vue2-leaflet";
 import * as Leaflet from "leaflet";
 import { CRS, latLng } from "leaflet";
-import LControlFullscreen from "vue2-leaflet-fullscreen";
 import "leaflet-easyprint";
 import "proj4leaflet";
-import proj4 from "proj4";
-import leafletImage from 'leaflet-image';
+
 
 
 export default {
@@ -229,7 +194,7 @@ export default {
         LPopup,
         LIcon,
         LControlScale,
-       
+        Mapa,
         LTooltip,
        
         LControlLayers,
@@ -329,11 +294,7 @@ export default {
     mounted() {
        
         this.removeLoadingOverlay();
-        setTimeout(() => {
-    if (this.$refs.map) {
-        this.map = this.$refs.map.mapObject;
-    }
-}, 10);
+     
     },
     created() {
         // Simular la carga de datos desde un JSON
@@ -417,15 +378,17 @@ export default {
         },
         verMapa(tipo, item){
             this.dialog = true;
-            this.map = this.$refs.map.mapObject;
+            
             axios
                 .post(
                     "/download",
                     { tipo: tipo, item: item }
                 ) // Necesario para la descarga
                 .then(res => {
+
+                    
                     console.log(res.data);
-                    this.gejson = res.data;
+                    this.geojson = res.data;
                 })
                 .catch(error => {
                     console.error("Error al descargar el archivo:", error);
