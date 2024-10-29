@@ -29,7 +29,7 @@
 
 
             <v-toolbar flat color="primary" dark class="mt-4">
-                <v-toolbar-title>RNG_Repository</v-toolbar-title>
+                <v-toolbar-title>Datasets</v-toolbar-title>
             </v-toolbar>
 
          
