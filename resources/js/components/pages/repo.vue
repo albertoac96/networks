@@ -1,9 +1,40 @@
 <template>
     <v-app>
         <v-card>
-            <v-toolbar flat color="primary" dark>
+
+            <v-card>
+                <vue-excel-editor
+                v-model="dessertsData"
+                width="100%"
+                height="400px"
+                readonly
+                disable-panel-filter
+                disable-panel-setting
+                ref="grid"
+                filter-row
+            >
+           
+            <vue-excel-column
+                v-for="(column, index) in headersData"
+                :key="index"
+                :field="column.text"
+                :label="column.value"
+                type="string"
+                readonly
+                
+                />
+            </vue-excel-editor>
+                </v-card>
+
+
+
+            <v-toolbar flat color="primary" dark class="mt-4">
                 <v-toolbar-title>RNG_Repository</v-toolbar-title>
             </v-toolbar>
+
+         
+
+
             <v-tabs vertical v-model="selectedTab">
                 <v-tab
                     v-for="(tab, index) in datasets"
@@ -13,6 +44,7 @@
                     {{ tab.cName }}
                 </v-tab>
 
+               
                 <v-tab-item v-for="(tab, index) in datasets" :key="index">
                     <v-card-text>
                         <p class="font-weight-medium" v-html="tab.cDescription"></p>
@@ -64,6 +96,33 @@
                                             </template>
                                             <span>{{ format.label }}</span>
                                         </v-tooltip>
+
+                                       
+
+
+                                    </v-col>
+                                    <v-col>
+                                    <v-tooltip bottom>
+                                            <template
+                                                v-slot:activator="{ on, attrs }"
+                                            >
+                                                <v-img
+                                                    v-bind="attrs"
+                                                    v-on="on"
+                                                    max-width="25"
+                                                    src="/images/vermapa.png"
+                                                    @click="
+                                                        verMapa(
+                                                            'json',
+                                                            item
+                                                        )
+                                                    "
+                                                    class="hover-image mr-1"
+                                                ></v-img>
+                                            </template>
+                                            <span>ver Mapa</span>
+                                        </v-tooltip>
+
                                     </v-col>
                                 </v-row>
                             </template>
@@ -72,17 +131,178 @@
                 </v-tab-item>
             </v-tabs>
         </v-card>
+
+
+
+        
+    <v-dialog
+      v-model="dialog"
+      width="500"
+    >
+      
+      <v-card>
+        
+
+        <v-card-text>
+
+            mapa
+
+            <l-map
+            ref="map"
+            :zoom="zoom"
+            :max-zoom="maxZoom"
+            :min-zoom="minZoom"
+            :center="center"
+        
+        >
+
+        <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
+
+        <l-geo-json
+           :geojson="geojson"
+           :options-style="styleFunction"
+         ></l-geo-json>
+    
+    
+    
+    </l-map>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="dialog = false"
+          >
+            I accept
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+
+
+
     </v-app>
 </template>
 
 <script>
 import Papa from "papaparse";
+import jsonData from '/storage/data.json';
+import 'leaflet/dist/leaflet.css';
+import {
+    LMap,
+    LTileLayer,
+    LMarker,
+    LPopup,
+    LIcon,
+    LControlScale,
+    LImageOverlay,
+    LTooltip,
+    LPolygon,
+    LControlLayers,
+    LLayerGroup,
+    LGeoJson,
+    LCircleMarker,
+    LPolyline,
+    LControl
+} from "vue2-leaflet";
+import * as Leaflet from "leaflet";
+import { CRS, latLng } from "leaflet";
+import LControlFullscreen from "vue2-leaflet-fullscreen";
+import "leaflet-easyprint";
+import "proj4leaflet";
+import proj4 from "proj4";
+import leafletImage from 'leaflet-image';
+
 
 export default {
     name: "diego",
     props: [],
-    components: {},
+    components: {
+        LMap,
+        LTileLayer,
+        LMarker,
+        LPopup,
+        LIcon,
+        LControlScale,
+       
+        LTooltip,
+       
+        LControlLayers,
+        LLayerGroup,
+       
+        LGeoJson,
+       
+        LControl
+    },
     data: () => ({
+        dialog: false,
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution:
+        '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      
+        zoom: 15,
+            maxZoom: 22,
+            minZoom: 4,
+            center: [51.505, -0.159],
+            geojson: [],
+        headersData: [
+        { text: 'Clave', value: 'Clave' },
+        { text: 'Toponym', value: 'Toponym' },
+        { text: 'PopSV', value: 'PopSV' },
+        { text: 'PopJV', value: 'PopJV' },
+        { text: 'VivSV', value: 'VivSV' },
+        { text: 'VivJV', value: 'VivJV' },
+        { text: 'Population', value: 'Population' },
+        { text: 'Population Rank', value: 'PopulationRank' },
+        { text: 'Pop-Ref', value: 'Pop-Ref' },
+        { text: 'Revisado', value: 'Revisado' },
+        { text: 'Homonym', value: 'Homonym' },
+        { text: 'ID Gibson', value: 'idGibson' },
+        { text: 'ID GA', value: 'idGA' },
+        { text: 'ID HB', value: 'idHB' },
+        { text: 'ID SV', value: 'idSV' },
+        { text: 'ID Hicks', value: 'idHicks' },
+        { text: 'Modern Name', value: 'ModernName' },
+        { text: 'Other Names', value: 'OtherNames' },
+        { text: 'Municipality', value: 'Municipality' },
+        { text: 'State', value: 'State' },
+        { text: 'Latitude', value: 'Lat' },
+        { text: 'Longitude', value: 'Long' },
+        { text: 'Coordinate Source', value: 'CoordSource' },
+        { text: 'Ethnicity', value: 'Ethnicity' },
+        { text: 'Politics', value: 'Politics' },
+        { text: 'Realm', value: 'Realm' },
+        { text: 'Status', value: 'Estatus' },
+        { text: 'Subject To', value: 'SubjectTo' },
+        { text: 'Political Code', value: 'PoliticalCode' },
+        { text: 'Political Rank', value: 'PoliticalRank' },
+        { text: 'Territory', value: 'Territory' },
+        { text: 'Number of Subject Towns', value: 'nSubjectTowns' },
+        { text: 'Territorial Rank', value: 'TerritorialRank' },
+        { text: 'Military', value: 'Military' },
+        { text: 'Tribute', value: 'Tribute' },
+        { text: 'Tributaries', value: 'Tributaries' },
+        { text: 'Economy', value: 'Economy' },
+        { text: 'Market', value: 'Market' },
+        { text: 'Early Market Status', value: 'EarlyMartekStatus' },
+        { text: 'Late Market Status', value: 'LateMarketStatus' },
+        { text: 'Dock', value: 'Dock' },
+        { text: 'Ceremonial Center', value: 'CeremonialCenter' },
+        { text: 'Other', value: 'Other' },
+        { text: 'Bibliography', value: 'Bibliography' },
+        { text: 'Observations', value: 'Observations' },
+        { text: 'Source Placename', value: 'SourcePlacename' },
+        { text: 'Name Translation', value: 'NameTranslation' },
+        { text: 'Translated By', value: 'TranslatedBy' },
+        { text: 'Source Glyph', value: 'SourceGlyph' },
+        { text: 'Change Name', value: 'ChangeName' }
+        ],
+        dessertsData: jsonData,
         selectedTab: 0,
         tabs: [],
         datasets: [],
@@ -101,12 +321,19 @@ export default {
                 icon: "/images/geojson-file.svg"
             },
             { type: "shape", label: "ShapeFile", icon: "/images/shape.png" },
-            { type: "zip", label: "ZIP", icon: "/images/zip.png" }
+            { type: "zip", label: "ZIP", icon: "/images/zip.png" },
+            
         ],
         loading: true
     }),
     mounted() {
+       
         this.removeLoadingOverlay();
+        setTimeout(() => {
+    if (this.$refs.map) {
+        this.map = this.$refs.map.mapObject;
+    }
+}, 10);
     },
     created() {
         // Simular la carga de datos desde un JSON
@@ -145,7 +372,20 @@ export default {
     },
     beforeMount() {},
     watch: {},
-    computed: {},
+    computed: {
+        styleFunction() {
+      const fillColor = this.fillColor; // important! need touch fillColor in computed for re-calculate when change fillColor
+      return () => {
+        return {
+          weight: 2,
+          color: "#ECEFF1",
+          opacity: 1,
+          fillColor: fillColor,
+          fillOpacity: 1
+        };
+      };
+    },
+    },
     methods: {
         removeLoadingOverlay() {
             const overlay = document.getElementById("loading-overlay");
@@ -174,6 +414,22 @@ export default {
                 default:
                     return `Default Name - ${item.cContenido.nBeta}`;
             }
+        },
+        verMapa(tipo, item){
+            this.dialog = true;
+            this.map = this.$refs.map.mapObject;
+            axios
+                .post(
+                    "/download",
+                    { tipo: tipo, item: item }
+                ) // Necesario para la descarga
+                .then(res => {
+                    console.log(res.data);
+                    this.gejson = res.data;
+                })
+                .catch(error => {
+                    console.error("Error al descargar el archivo:", error);
+                });
         },
         download(tipo, item) {
             console.log(tipo);
@@ -316,7 +572,10 @@ export default {
             } else {
                 console.error("Proyecto no encontrado en datasets.");
             }
-        }
+        },
+
+
+       
     }
 };
 </script>
