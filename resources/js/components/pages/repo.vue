@@ -16,6 +16,15 @@
            
             <vue-excel-column field="Clave" label="Clave" type="string" :sticky="true" :readonly="true" @select="clickCve"/>
                     <vue-excel-column field="Toponym" label="Toponym" type="string" :sticky="true"  :change="changeCell" />
+                    
+                    <vue-excel-column field="ModernName" label="ModernName" type="string" :change="changeCell"/>
+                    <vue-excel-column field="OtherNames" label="OtherNames" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Municipality" label="Municipality" type="string" :change="changeCell"/>
+                    <vue-excel-column field="State" label="State" type="string" :change="changeCell"/>
+                    <vue-excel-column field="Lat" label="Lat" type="number" :change="changeCell"/>
+                    <vue-excel-column field="Long" label="Long" type="number" :change="changeCell"/>
+                    <vue-excel-column field="CoordSource" label="CoordSource" type="string" :change="changeCell"/>
+                    
                     <vue-excel-column field="PopSV" label="PopSV" type="number" :change="changeCell" />
                     <vue-excel-column field="PopJV" label="PopJV" type="number" :change="changeCell" />
                     <vue-excel-column field="VivSV" label="VivSV" type="number" :change="changeCell" />
@@ -27,13 +36,7 @@
                     <vue-excel-column field="idHB" label="idHB" type="string" :change="changeCell"/>
                     <vue-excel-column field="idSV" label="idSV" type="string" :change="changeCell"/>
                     <vue-excel-column field="idHicks" label="idHicks" type="string" :change="changeCell"/>
-                    <vue-excel-column field="ModernName" label="ModernName" type="string" :change="changeCell"/>
-                    <vue-excel-column field="OtherNames" label="OtherNames" type="string" :change="changeCell"/>
-                    <vue-excel-column field="Municipality" label="Municipality" type="string" :change="changeCell"/>
-                    <vue-excel-column field="State" label="State" type="string" :change="changeCell"/>
-                    <vue-excel-column field="Lat" label="Lat" type="number" :change="changeCell"/>
-                    <vue-excel-column field="Long" label="Long" type="number" :change="changeCell"/>
-                    <vue-excel-column field="CoordSource" label="CoordSource" type="string" :change="changeCell"/>
+                   
                     <vue-excel-column field="Ethnicity" label="Ethnicity" type="string" :change="changeCell"/>
                     <vue-excel-column field="Politics" label="Politics" type="string" :change="changeCell"/>
                     <vue-excel-column field="Realm" label="Realm" type="string" :change="changeCell"/>
