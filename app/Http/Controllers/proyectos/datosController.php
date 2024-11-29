@@ -649,10 +649,9 @@ class datosController extends Controller
             mkdir($shapeFolder, 0777, true); // Crear la carpeta de salida si no existe
         }
 
-        $command = "ogr2ogr -f 'ESRI Shapefile' -t_src EPSG:4326 $outputPath $inputPath";
+        $command = "ogr2ogr --debug ON -f 'ESRI Shapefile' -t_srs EPSG:4326 $outputPath $inputPath";
 
-        return $command;
-
+      
         $output = shell_exec($command);
 
         // Crear el archivo ZIP
@@ -662,23 +661,30 @@ class datosController extends Controller
         $zip = new ZipArchive;
         if ($zip->open(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $zipFilePath), ZipArchive::CREATE) === TRUE) {
             
-              // Rutas de archivos shapefile
-              $shapeFiles = [
-                'shx' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".shx"),
-                'shp' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".shp"),
-                'dbf' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".dbf"),
-                'prj' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".prj"),
-            ];
-    
-            foreach ($shapeFiles as $extension => $filePath) {
-                if (!file_exists($filePath)) {
-                    throw new \Exception('El archivo ' . basename($filePath) . ' no existe en la ruta: ' . $filePath);
-                } else {
-                    // Depuración: imprimir la ruta del archivo
-                    echo "Agregando archivo: " . $filePath . "\n"; // Imprime la ruta
-                    $zip->addFile($filePath, $name . '.' . $extension);
-                }
-            }
+            // Crear una carpeta dentro del ZIP
+$folderName = 'shape/';
+$zip->addEmptyDir($folderName);
+
+// Rutas de archivos shapefile
+$shapeFiles = [
+    'shx' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".shx"),
+    'shp' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".shp"),
+    'dbf' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".dbf"),
+    'prj' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".prj"),
+];
+
+foreach ($shapeFiles as $extension => $filePath) {
+    if (!file_exists($filePath)) {
+        throw new \Exception('El archivo ' . basename($filePath) . ' no existe en la ruta: ' . $filePath);
+    } else {
+        // Depuración: imprimir la ruta del archivo
+        echo "Agregando archivo: " . $filePath . "\n"; // Imprime la ruta
+
+        // Agregar el archivo dentro de la carpeta 'shape' en el ZIP
+        $zip->addFile($filePath, $folderName . $name . '.' . $extension);
+    }
+}
+
             
             $zip->addFile(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $filePath), $fileName);
             $zip->addFile(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $geoJsonFilePath), $geoJsonFileName);
