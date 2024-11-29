@@ -194,13 +194,15 @@ class datosController extends Controller
     }
     
     public function  ComputeGraph(Request $request){
-        
+        set_time_limit(3000); 
         $PaDataSource = $this->traerDataSource($request->info['idProject']);
         $PiBeta = $request->beta;
         $PiSigma = $request->sigma;
         $PcDistFunction = $request->distFuntion;
         $PcNetType = $request->netType;
         $PcName = $request->nameGrafo;
+
+        $nContador = 0;
 
         $grafo = Grafo::create([
             'idProyecto' => $request->info['idProject']
@@ -233,13 +235,20 @@ class datosController extends Controller
 
         $cve = 0;
 
+        
+        $debug = "";
+        $k=0;
        // Perform the Test of Region Emptiness
        for ($i = 0; $i < count($PaDataSource); $i++){
-      
+        $debug = $debug."i=".$i."   ";
         $maxColumn = 1 + $i;
         for ($j = 0; $j < $maxColumn; $j++){
+            $debug = $debug."    j=".$j." ";
            
             if($i>$j){
+                $k++;
+               
+                $debug = $debug."    ENTRE   ";
                 $piX = doubleval($PaDataSource[$i]['NodeX']);
                 $piY = doubleval($PaDataSource[$i]['NodeY']);
 
@@ -390,6 +399,8 @@ class datosController extends Controller
         
         $grafo = Grafo::where('idGrafo', $grafo->idGrafo)->get();
 
+       
+
         return response()->json([
             "grafo" => $grafo
         ]);
@@ -436,6 +447,8 @@ class datosController extends Controller
                 'RelativeAssymetry' => 0
             );
         }
+
+        
 
         return $dataSource;
         
@@ -551,6 +564,8 @@ class datosController extends Controller
 
     function DescargarTodo(Request $request){
 
+      
+
         $jsondata = $request->json()->all();
 
       
@@ -609,22 +624,34 @@ class datosController extends Controller
         $geoJsonData = json_encode($geoJsonData['geo']);
         Storage::disk('public')->put($geoJsonFilePath, $geoJsonData);
 
+
+         // Definir la carpeta de salida para archivos Shapefile
+         $shapeFolder = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $folderPath . DIRECTORY_SEPARATOR . 'shape_file');
+         $outputPath = $shapeFolder . DIRECTORY_SEPARATOR . $name .'.shp';
+         $inputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$geoJsonFilePath);
+ 
+
         // Comando para convertir el archivo
         $command = [
             'ogr2ogr',
             '-f', 'ESRI Shapefile', // Formato de salida
-            storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$folderPath. DIRECTORY_SEPARATOR .'shape'), // Carpeta de salida para archivos Shapefile
-            storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR . $geoJsonFilePath),  // Archivo GeoJSON de entrada
+            $shapeFolder, // Carpeta de salida para archivos Shapefile
+            $inputPath,  // Archivo GeoJSON de entrada
         ];
 
-        $outputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$folderPath. DIRECTORY_SEPARATOR .'shape_file' . DIRECTORY_SEPARATOR . $name .'.shp');
-        $inputPath = storage_path('app'. DIRECTORY_SEPARATOR .'public'. DIRECTORY_SEPARATOR .$geoJsonFilePath);
+       
+       // echo $outputPath;
+       // echo "<br>";
+       // echo $inputPath;
 
-        echo $outputPath;
-        echo "<br>";
-        echo $inputPath;
+        // Asegúrate de que la carpeta para los archivos shapefile exista
+        if (!file_exists($shapeFolder)) {
+            mkdir($shapeFolder, 0777, true); // Crear la carpeta de salida si no existe
+        }
 
         $command = "ogr2ogr -f 'ESRI Shapefile' -t_src EPSG:4326 $outputPath $inputPath";
+
+        return $command;
 
         $output = shell_exec($command);
 
@@ -634,6 +661,25 @@ class datosController extends Controller
 
         $zip = new ZipArchive;
         if ($zip->open(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $zipFilePath), ZipArchive::CREATE) === TRUE) {
+            
+              // Rutas de archivos shapefile
+              $shapeFiles = [
+                'shx' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".shx"),
+                'shp' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".shp"),
+                'dbf' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".dbf"),
+                'prj' => ($shapeFolder . DIRECTORY_SEPARATOR . $name . ".prj"),
+            ];
+    
+            foreach ($shapeFiles as $extension => $filePath) {
+                if (!file_exists($filePath)) {
+                    throw new \Exception('El archivo ' . basename($filePath) . ' no existe en la ruta: ' . $filePath);
+                } else {
+                    // Depuración: imprimir la ruta del archivo
+                    echo "Agregando archivo: " . $filePath . "\n"; // Imprime la ruta
+                    $zip->addFile($filePath, $name . '.' . $extension);
+                }
+            }
+            
             $zip->addFile(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $filePath), $fileName);
             $zip->addFile(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $geoJsonFilePath), $geoJsonFileName);
             $zip->close();
