@@ -651,7 +651,7 @@ class datosController extends Controller
 
         $command = "ogr2ogr -f 'ESRI Shapefile' -t_src EPSG:4326 $outputPath $inputPath";
 
-      
+        return $command;
 
         $output = shell_exec($command);
 
