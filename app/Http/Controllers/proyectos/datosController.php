@@ -658,9 +658,19 @@ class datosController extends Controller
         $zipFileName = $name. '.zip';
         $zipFilePath = $folderPath . '/' . $zipFileName;
 
+
+        // Verificar si el archivo ZIP ya existe
+if (file_exists(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.$zipFilePath))) {
+    // Eliminar el archivo existente
+    unlink(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.$zipFilePath));
+    echo "Archivo ZIP eliminado: " . $zipFilePath . "\n";
+} else {
+    echo "No existe un archivo ZIP previo con el nombre: " . $zipFilePath . "\n";
+}
+
         $zip = new ZipArchive;
         if ($zip->open(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $zipFilePath), ZipArchive::CREATE) === TRUE) {
-            
+           
             // Crear una carpeta dentro del ZIP
 $folderName = 'shape/';
 $zip->addEmptyDir($folderName);
@@ -674,6 +684,7 @@ $shapeFiles = [
 ];
 
 foreach ($shapeFiles as $extension => $filePath) {
+    
     if (!file_exists($filePath)) {
         throw new \Exception('El archivo ' . basename($filePath) . ' no existe en la ruta: ' . $filePath);
     } else {
@@ -683,10 +694,15 @@ foreach ($shapeFiles as $extension => $filePath) {
         // Agregar el archivo dentro de la carpeta 'shape' en el ZIP
         $zip->addFile($filePath, $folderName . $name . '.' . $extension);
     }
+  
 }
 
-            
-            $zip->addFile(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $filePath), $fileName);
+
+
+$excel = storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $folderPath . "/" . $fileName);
+
+          
+            $zip->addFile($excel, $fileName);
             $zip->addFile(storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR. $geoJsonFilePath), $geoJsonFileName);
             $zip->close();
         } else {
@@ -702,12 +718,18 @@ foreach ($shapeFiles as $extension => $filePath) {
         // Añadir un header personalizado con el nombre del archivo
         $response->headers->set('Content-Disposition', 'attachment; filename="' . $name . '"');
 
-        
+       
 
         return $response;
 
 
         return $data;
+        
+    }
+
+
+    public function DescargarProyecto(Request $request){
+        return $request->id;
         
     }
 

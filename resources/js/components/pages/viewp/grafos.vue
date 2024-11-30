@@ -5,6 +5,15 @@
                 <span class="ml-2" style="color: white; font-family: 'Maven Pro', sans-serif; font-weight: 700;">Graph Layers</span>
                 <v-divider class="mx-4" inset vertical dense></v-divider>
                 <v-subheader style="color: white; font-family: 'Maven Pro', sans-serif; font-weight: 700;">Total: {{ $store.state.grafos.length }}</v-subheader>
+                <!--<v-btn
+              color="secondary"
+              fab
+              x-small
+              dark
+              @click="descargarTodos()"
+            >
+              <v-icon>mdi-television</v-icon>
+            </v-btn>-->
             </v-toolbar>
         <v-row dense class="ml-4 mt-2">
         
@@ -542,7 +551,7 @@ export default {
             };
 
             axios
-                .post("/projects/download", data, { responseType: "blob" })
+                .post("/projects/downloadtodo", data, { responseType: "blob" })
                 .then(res => {
                     // Leer el nombre del archivo desde los headers
                     const contentDisposition =
@@ -569,6 +578,39 @@ export default {
                     link.parentNode.removeChild(link);
                 })
                 .catch(error => { });
+        },
+        descargarTodos(){
+            var data = this.$route.params;
+          
+            axios
+            .post("/projects/downloadtodo", data, { responseType: "blob" })
+                .then(res => {
+                    // Leer el nombre del archivo desde los headers
+                    const contentDisposition =
+                        res.headers["content-disposition"];
+                    let filename = "default_name.zip"; // Un nombre por defecto
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(
+                            /filename="?(.+)"?/
+                        );
+                        if (filenameMatch.length > 1) {
+                            filename = filenameMatch[1];
+                        }
+                    }
+
+                    // Procesar la descarga
+                    const url = window.URL.createObjectURL(
+                        new Blob([res.data])
+                    );
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.setAttribute("download", filename + ".zip");
+                    document.body.appendChild(link);
+                    link.click();
+                    link.parentNode.removeChild(link);
+                })
+                .catch((error) => {
+                });
         }
     }
 };

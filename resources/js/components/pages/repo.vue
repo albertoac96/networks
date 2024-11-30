@@ -307,7 +307,7 @@ export default {
         { text: 'Source Glyph', value: 'SourceGlyph' },
         { text: 'Change Name', value: 'ChangeName' }
         ],
-        dessertsData: jsonData,
+        dessertsData: null,
         selectedTab: 0,
         tabs: [],
         datasets: [],
