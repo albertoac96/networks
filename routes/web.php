@@ -59,8 +59,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/archivoup', [App\Http\Controllers\proyectos\datosController::class, 'subirArchivo']);
         Route::get('/info/{id}', [App\Http\Controllers\proyectos\datosController::class, 'infoProyecto']);
         Route::get('/list', [App\Http\Controllers\proyectos\datosController::class, 'listProjects']);
-        //Route::post('/compute', [App\Http\Controllers\proyectos\datosController::class, 'ComputeGraph']);
-        Route::post('/compute', [App\Http\Controllers\graphController::class, 'ComputeGraphOptimized']);
+        Route::post('/compute', [App\Http\Controllers\proyectos\datosController::class, 'ComputeGraph']);
+        //Route::post('/compute', [App\Http\Controllers\graphController::class, 'ComputeGraphOptimized']);
         Route::post('/download', [App\Http\Controllers\proyectos\datosController::class, 'DescargarTodo']);
         Route::post('/downloadtodo', [App\Http\Controllers\proyectos\datosController::class, 'DescargarProyecto']);
         Route::post('/controlnode', [App\Http\Controllers\proyectos\grafosControl::class, 'CalculateNodesControl']);
