@@ -551,7 +551,7 @@ export default {
             };
 
             axios
-                .post("/projects/downloadtodo", data, { responseType: "blob" })
+                .post("/projects/download", data, { responseType: "blob" })
                 .then(res => {
                     // Leer el nombre del archivo desde los headers
                     const contentDisposition =
