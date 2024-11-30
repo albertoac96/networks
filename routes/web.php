@@ -62,7 +62,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/compute', [App\Http\Controllers\proyectos\datosController::class, 'ComputeGraph']);
         //Route::post('/compute', [App\Http\Controllers\graphController::class, 'ComputeGraphOptimized']);
         Route::post('/download', [App\Http\Controllers\proyectos\datosController::class, 'DescargarTodo']);
-        Route::post('/downloadtodo', [App\Http\Controllers\proyectos\datosController::class, 'DescargarProyecto']);
+        //Route::post('/downloadtodo', [App\Http\Controllers\proyectos\datosController::class, 'DescargarProyecto']);
         Route::post('/controlnode', [App\Http\Controllers\proyectos\grafosControl::class, 'CalculateNodesControl']);
 
         Route::get('/vergrafos/{id}', [App\Http\Controllers\proyectos\grafosControl::class, 'traeGrafos']);
