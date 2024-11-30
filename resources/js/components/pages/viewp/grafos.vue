@@ -550,6 +550,8 @@ export default {
                 formatedData: this.$store.state.formatedData
             };
 
+            console.log("DESCARGAR /projects/download");
+
             axios
                 .post("/projects/download", data, { responseType: "blob" })
                 .then(res => {
