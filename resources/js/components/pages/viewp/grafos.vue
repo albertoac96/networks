@@ -579,39 +579,7 @@ export default {
                 })
                 .catch(error => { });
         },
-        descargarTodos(){
-            var data = this.$route.params;
-          
-            axios
-            .post("/projects/downloadtodo", data, { responseType: "blob" })
-                .then(res => {
-                    // Leer el nombre del archivo desde los headers
-                    const contentDisposition =
-                        res.headers["content-disposition"];
-                    let filename = "default_name.zip"; // Un nombre por defecto
-                    if (contentDisposition) {
-                        const filenameMatch = contentDisposition.match(
-                            /filename="?(.+)"?/
-                        );
-                        if (filenameMatch.length > 1) {
-                            filename = filenameMatch[1];
-                        }
-                    }
-
-                    // Procesar la descarga
-                    const url = window.URL.createObjectURL(
-                        new Blob([res.data])
-                    );
-                    const link = document.createElement("a");
-                    link.href = url;
-                    link.setAttribute("download", filename + ".zip");
-                    document.body.appendChild(link);
-                    link.click();
-                    link.parentNode.removeChild(link);
-                })
-                .catch((error) => {
-                });
-        }
+      
     }
 };
 </script>
