@@ -528,6 +528,7 @@ export default {
             }
         },
         DescargaInfo(grafo) {
+            console.log("DESCARGAR INFO UNCION");
             //console.log(grafo);
             var sTable = JSON.parse(grafo.cContenido);
             sTable = sTable.nodes;
