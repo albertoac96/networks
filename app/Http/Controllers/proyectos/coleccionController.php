@@ -208,8 +208,24 @@ class coleccionController extends Controller
         $shapeFolder = $this->convertToShp($folderPath, $name, $geoJsonFilePath);
     
         // Ruta del ZIP
-        $zipFileName = $name . '_shp';
-        $zipFilePath = storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $folderPath . DIRECTORY_SEPARATOR . $zipFileName);
+        $zipFileName = $name . '.zip';
+        $folderPath = 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $folderPath;
+        $zipFilePath = storage_path($folderPath . DIRECTORY_SEPARATOR . $zipFileName);
+
+           // Verificar si el archivo ZIP ya existe
+           if (file_exists(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $zipFilePath))) {
+            // Eliminar el archivo existente
+            unlink(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $zipFilePath));
+            //echo "Archivo ZIP eliminado: " . $zipFilePath . "\n";
+        } else {
+            //echo "No existe un archivo ZIP previo con el nombre: " . $zipFilePath . "\n";
+        }
+
+ 
+         $crearZip = "zip -r ".$zipFilePath." ".$folderPath;
+         shell_exec($crearZip);
+
+         /*
     
         $zip = new \ZipArchive;
     
@@ -239,13 +255,13 @@ class coleccionController extends Controller
             }
         } else {
             throw new \Exception('No se pudo abrir o crear el archivo ZIP: ' . $zipFilePath);
-        }
+        }*/
 
 
     
         // Crear la respuesta de descarga
         $response = response()->download($zipFilePath);
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . $zipFileName . '"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $name . '_shp"');
     
         return $response;
     }

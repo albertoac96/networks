@@ -663,25 +663,29 @@ class datosController extends Controller
 
         $output = shell_exec($command);
 
-        // Crear el archivo ZIP
-        $zipFileName = $name . '.zip';
-        $zipFilePath = $folderPath . '/' . $zipFileName;
+          // Crear el archivo ZIP
+          $zipFileName = $name . '.zip';
+          $zipFilePath = $folderPath . '/' . $zipFileName;
+
+         // Verificar si el archivo ZIP ya existe
+         if (file_exists(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $zipFilePath))) {
+            // Eliminar el archivo existente
+            unlink(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $zipFilePath));
+            //echo "Archivo ZIP eliminado: " . $zipFilePath . "\n";
+        } else {
+            //echo "No existe un archivo ZIP previo con el nombre: " . $zipFilePath . "\n";
+        }
+
+      
 
         $crearZip = "zip -r ".$zipFilePath." ".$folderPath;
         shell_exec($crearZip);
 
-        /*
-        // Verificar si el archivo ZIP ya existe
-        if (file_exists(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $zipFilePath))) {
-            // Eliminar el archivo existente
-            unlink(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $zipFilePath));
-            echo "Archivo ZIP eliminado: " . $zipFilePath . "\n";
-        } else {
-            echo "No existe un archivo ZIP previo con el nombre: " . $zipFilePath . "\n";
-        }
+     
+       
 
 
-
+   /*
 
 
         $zip = new ZipArchive;
