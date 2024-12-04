@@ -544,6 +544,14 @@ export default {
             document.body.removeChild(link);
         },
 
+        clickCve(){
+            console.log(this.dessertsData);
+        },
+
+        changeCell(){
+
+        },
+
         loadTabData(projectId) {
             // Encuentra la posición del proyecto en datasets utilizando su id
             const projectIndex = this.datasets.findIndex(
