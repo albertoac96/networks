@@ -665,7 +665,7 @@ class datosController extends Controller
 
           // Crear el archivo ZIP
           $zipFileName = $name . '.zip';
-          $zipFilePath = $folderPath . '/' . $zipFileName;
+          $zipFilePath = $folderPath . DIRECTORY_SEPARATOR . $zipFileName;
 
          // Verificar si el archivo ZIP ya existe
          if (file_exists(storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $zipFilePath))) {
@@ -678,7 +678,7 @@ class datosController extends Controller
 
       
 
-        $crearZip = "zip -r ".$zipFilePath." ".$folderPath;
+        $crearZip = "zip -r ".storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR .$zipFilePath)." ".storage_path('app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR .$folderPath);
         shell_exec($crearZip);
 
      
